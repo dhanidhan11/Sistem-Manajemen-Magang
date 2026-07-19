@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Verifikasi Pendaftaran - Mentor{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-user-check me-2 text-primary"></i>
+            Verifikasi Pendaftaran Peserta
+        </h2>
+        <span class="badge bg-primary fs-6">{{ pending_peserta.count }} Menunggu</span>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card shadow-sm border-0" style="border-radius: 15px;">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4 py-3">Nama Lengkap</th>
+                            <th class="py-3">NIM / Instansi</th>
+                            <th class="py-3">Bidang Penempatan</th>
+                            <th class="py-3">Periode Magang</th>
+                            <th class="py-3 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if pending_peserta %}
+                            {% for p in pending_peserta %}
+                            <tr>
+                                <td class="ps-4 align-middle">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm rounded-circle bg-soft-primary text-primary me-3 text-center" style="width: 40px; height: 40px; line-height: 40px; background: #e7f1ff;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark">{{ p.user.get_full_name }}</div>
+                                            <small class="text-muted">{{ p.user.email }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="align-middle">
+                                    <div class="fw-medium">{{ p.nim }}</div>
+                                    <small class="text-muted">{{ p.institusi }}</small>
+                                </td>
+                                <td class="align-middle">
+                                    <span class="badge bg-light text-dark border">{{ p.bidang_penempatan }}</span>
+                                </td>
+                                <td class="align-middle text-nowrap">
+                                    <small>
+                                        <i class="far fa-calendar-alt me-1 text-muted"></i> {{ p.tanggal_mulai|date:"d M Y" }}<br>
+                                        <i class="far fa-calendar-check me-1 text-muted"></i> {{ p.tanggal_selesai|date:"d M Y" }}
+                                    </small>
+                                </td>
+                                <td class="text-center align-middle pe-4">
+                                    <div class="btn-group shadow-sm">
+                                        <form method="POST" action="{% url 'users:mentor_approve' p.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-success btn-sm px-3" title="Setujui">
+                                                <i class="fas fa-check me-1"></i>Setujui
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{% url 'users:mentor_reject' p.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm px-3" title="Tolak">
+                                                <i class="fas fa-times me-1"></i>Tolak
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <div class="text-muted">
+                                        <i class="fas fa-user-clock fa-3x mb-3 opacity-25"></i>
+                                        <p class="mb-0">Tidak ada pendaftaran yang perlu diverifikasi.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

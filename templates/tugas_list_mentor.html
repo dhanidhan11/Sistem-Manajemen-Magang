@@ -1,0 +1,329 @@
+{% extends 'base.html' %}
+
+{% block title %}Daftar Tugas Magang - Mentor{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-tasks me-2 text-primary"></i>
+            Manajemen Tugas Magang
+        </h2>
+        <button class="btn btn-primary shadow-sm rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalCreateTugas">
+            <i class="fas fa-plus me-2"></i>Berikan Tugas Baru
+        </button>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Search Bar -->
+    <div class="card shadow-sm border-0 mb-4" style="border-radius: 15px;">
+        <div class="card-body">
+            <form method="GET" action="" class="row g-3 align-items-center">
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                        <input type="text" name="q" class="form-control border-start-0" placeholder="Cari berdasarkan NIM atau Nama Peserta..." value="{{ search_query|default:'' }}">
+                    </div>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-primary rounded-pill shadow-sm">Cari</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0" style="border-radius: 15px;">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Peserta</th>
+                            <th>Judul Tugas</th>
+                            <th>Status</th>
+                            <th>Nilai</th>
+                            <th class="text-center pe-4">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if tugas_list %}
+                            {% for tugas in tugas_list %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold text-dark">{{ tugas.peserta.user.get_full_name }}</div>
+                                    <small class="text-muted">{{ tugas.peserta.nim }}</small>
+                                </td>
+                                <td>
+                                    <div class="fw-bold">{{ tugas.judul }}</div>
+                                    <small class="text-muted text-truncate d-inline-block" style="max-width: 200px;">{{ tugas.deskripsi }}</small>
+                                </td>
+                                <td>
+                                    {% if tugas.status == 'selesai' %}
+                                        <span class="badge bg-success rounded-pill px-3">Selesai</span>
+                                    {% elif tugas.status == 'dikirim' %}
+                                        <span class="badge bg-info text-dark rounded-pill px-3">Perlu Dinilai</span>
+                                    {% elif tugas.status == 'proses' %}
+                                        <span class="badge bg-primary rounded-pill px-3">Proses</span>
+                                    {% elif tugas.status == 'perlu_revisi' %}
+                                        <span class="badge bg-danger rounded-pill px-3">Revisi</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark rounded-pill px-3">Belum</span>
+                                    {% endif %}
+                                    <div class="mt-1">
+                                        {% if tugas.is_expired %}
+                                            <small class="text-danger fw-bold"><i class="fas fa-exclamation-circle me-1"></i>Expired: {{ tugas.deadline|date:"d M Y" }}</small>
+                                        {% else %}
+                                            <small class="text-muted"><i class="far fa-clock me-1"></i>{{ tugas.deadline|date:"d M Y" }}</small>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if tugas.nilai %}
+                                        <span class="fw-bold text-success">{{ tugas.nilai }}</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center pe-4">
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-info text-white rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalProgress{{ tugas.id }}" title="Pantau Progress Pekerjaan">
+                                            <i class="fas fa-chart-line me-1"></i>Progress
+                                        </button>
+                                        
+                                        {% if tugas.status == 'dikirim' %}
+                                        <button class="btn btn-sm btn-primary rounded-pill px-3 ms-1" data-bs-toggle="modal" data-bs-target="#modalReview{{ tugas.id }}">
+                                            <i class="fas fa-search me-1"></i>Periksa
+                                        </button>
+                                        {% endif %}
+                                        
+                                        <!-- Tombol Edit Deadline -->
+                                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 ms-1" data-bs-toggle="modal" data-bs-target="#modalEditDeadline{{ tugas.id }}" title="Ubah Deadline">
+                                            <i class="far fa-calendar-alt me-1"></i>Deadline
+                                        </button>
+
+                                        <form method="POST" action="{% url 'tugas:tugas_delete' tugas.id %}" class="ms-1" onsubmit="return confirm('Hapus tugas ini?')">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-outline-danger border-0 rounded-circle" style="width: 32px; height: 32px;" title="Hapus">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <!-- Modal Edit Deadline -->
+                                    <div class="modal fade" id="modalEditDeadline{{ tugas.id }}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content" style="border-radius: 15px;">
+                                                <div class="modal-header border-0 bg-light" style="border-radius: 15px 15px 0 0;">
+                                                    <h5 class="modal-title fw-bold"><i class="far fa-calendar-alt me-2 text-primary"></i>Ubah Deadline Tugas</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <form method="POST" action="{% url 'tugas:tugas_edit_deadline' tugas.id %}">
+                                                    {% csrf_token %}
+                                                    <div class="modal-body p-4">
+                                                        <p class="mb-2 text-muted small">Tugas: <strong>{{ tugas.judul }}</strong> &mdash; {{ tugas.peserta.user.get_full_name }}</p>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold">Deadline Saat Ini</label>
+                                                            <div class="p-2 bg-light rounded border text-muted"><i class="far fa-clock me-2"></i>{{ tugas.deadline|date:"d F Y" }}</div>
+                                                        </div>
+                                                        <div class="mb-1">
+                                                            <label class="form-label fw-bold">Deadline Baru</label>
+                                                            <input type="date" name="deadline" class="form-control" value="{{ tugas.deadline|date:'Y-m-d' }}" required>
+                                                            <small class="text-muted">Ubah ke tanggal lebih awal untuk mempercepat, atau lebih jauh untuk memperpanjang.</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer border-0">
+                                                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                                                        <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">Simpan Deadline</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Modal Progress Tugas -->
+                                    <div class="modal fade" id="modalProgress{{ tugas.id }}" tabindex="-1">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content text-start" style="border-radius: 15px;">
+                                                <div class="modal-header border-0 bg-light" style="border-radius: 15px 15px 0 0;">
+                                                    <h5 class="modal-title fw-bold">Progress Tugas: {{ tugas.judul }}</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body p-4">
+                                                    <h6 class="fw-bold mb-3">Timeline Logbook Peserta</h6>
+                                                    {% if tugas.logbooks.all %}
+                                                        <div class="timeline">
+                                                            {% for log in tugas.logbooks.all %}
+                                                                <div class="card mb-3 shadow-sm border-0">
+                                                                    <div class="card-body">
+                                                                        <div class="d-flex justify-content-between">
+                                                                            <h6 class="fw-bold text-primary mb-1">{{ log.tanggal|date:"d M Y" }}</h6>
+                                                                            <span class="badge bg-secondary">{{ log.get_status_display }}</span>
+                                                                        </div>
+                                                                        <p class="mb-2 mt-2">{{ log.kegiatan }}</p>
+                                                                        {% if log.dokumentasi %}
+                                                                            <a href="{{ log.dokumentasi.url }}" target="_blank" class="btn btn-sm btn-outline-info rounded-pill"><i class="fas fa-image me-1"></i>Lihat Foto</a>
+                                                                        {% endif %}
+                                                                    </div>
+                                                                </div>
+                                                            {% endfor %}
+                                                        </div>
+                                                        <div class="alert alert-success mt-3"><i class="fas fa-info-circle me-2"></i>Terdapat {{ tugas.logbooks.count }} hari logbook yang dikerjakan untuk projek ini.</div>
+                                                    {% else %}
+                                                        <div class="alert alert-warning">
+                                                            <i class="fas fa-info-circle me-2"></i>Belum ada aktivitas logbook yang ditautkan ke tugas/projek ini oleh peserta.
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="modal-footer border-0">
+                                                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Tutup</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Modal Review Tugas -->
+                                    {% if tugas.status == 'dikirim' %}
+                                    <div class="modal fade" id="modalReview{{ tugas.id }}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content text-start" style="border-radius: 15px;">
+                                                <div class="modal-header border-0 bg-light" style="border-radius: 15px 15px 0 0;">
+                                                    <h5 class="modal-title fw-bold">Penilaian Tugas</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <form method="POST" action="{% url 'tugas:tugas_review' tugas.id %}">
+                                                    {% csrf_token %}
+                                                    <div class="modal-body p-4">
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold">Lampiran Peserta:</label>
+                                                            <div class="d-grid gap-2">
+                                                                {% if tugas.file_tugas %}
+                                                                <a href="{{ tugas.file_tugas.url }}" class="btn btn-sm btn-outline-success py-2 rounded-pill" target="_blank">
+                                                                    <i class="fas fa-download me-2"></i>Download File Submisi
+                                                                </a>
+                                                                {% endif %}
+                                                                
+                                                                {% if tugas.link_tugas %}
+                                                                <a href="{{ tugas.link_tugas }}" class="btn btn-sm btn-outline-primary py-2 rounded-pill" target="_blank">
+                                                                    <i class="fas fa-external-link-alt me-2"></i>Lihat Link Submisi
+                                                                </a>
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold">Nilai (0-100)</label>
+                                                            <input type="number" name="nilai" class="form-control" placeholder="Masukkan angka nilai...">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold">Komentar / Feedback</label>
+                                                            <textarea name="catatan" class="form-control" rows="3" placeholder="Tulis catatan atau alasan jika perlu revisi..."></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer border-0">
+                                                        <button type="submit" name="action" value="reject" class="btn btn-outline-danger rounded-pill px-4">Minta Revisi</button>
+                                                        <button type="submit" name="action" value="approve" class="btn btn-success rounded-pill px-4 shadow-sm">Simpan & Selesai</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <i class="fas fa-tasks fa-3x mb-3 opacity-25"></i>
+                                    <p class="text-muted mb-0">Belum ada tugas yang diberikan.</p>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginasi -->
+            {% if tugas_list.has_other_pages %}
+            <div class="d-flex justify-content-between align-items-center mt-3 p-3 bg-light" style="border-radius: 0 0 15px 15px;">
+                <div class="text-muted small">
+                    Halaman {{ tugas_list.number }} dari {{ tugas_list.paginator.num_pages }}
+                    (Total {{ tugas_list.paginator.count }} Tugas)
+                </div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        {% if tugas_list.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link shadow-sm" href="?page={{ tugas_list.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Sebelumnya</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link bg-light text-muted">Sebelumnya</span></li>
+                        {% endif %}
+                        {% if tugas_list.has_next %}
+                            <li class="page-item ms-2">
+                                <a class="page-link shadow-sm" href="?page={{ tugas_list.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Selanjutnya</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item ms-2 disabled"><span class="page-link bg-light text-muted">Selanjutnya</span></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal Create Tugas (Tetap sama namun layout lebih rapi) -->
+    <div class="modal fade" id="modalCreateTugas" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content" style="border-radius: 20px; border: none;">
+                <div class="modal-header border-0 bg-light p-4" style="border-radius: 20px 20px 0 0;">
+                    <h5 class="modal-title fw-bold text-primary">Berikan Tugas Baru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="{% url 'tugas:tugas_create' %}">
+                    {% csrf_token %}
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Target Peserta</label>
+                            <select name="peserta" class="form-select" required>
+                                <option value="" disabled selected>-- Pilih Peserta --</option>
+                                {% for p in peserta_bimbingan %}
+                                    <option value="{{ p.id }}">{{ p.user.get_full_name }} ({{ p.nim }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Judul Tugas / Projek</label>
+                            <input type="text" name="judul" class="form-control" placeholder="Contoh: Implementasi Login Page" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Bentuk Projek (Output)</label>
+                            <input type="text" name="bentuk_projek" class="form-control" placeholder="Contoh: Website, Laporan Word, UI Design, dll" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Penjelasan & Keterangan Lengkap</label>
+                            <textarea name="deskripsi" class="form-control" rows="4" placeholder="Jelaskan detail panjang tentang apa yang harus dikerjakan, acuan, dll..." required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Deadline</label>
+                            <input type="date" name="deadline" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-5 shadow-sm">Kirim Tugas</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

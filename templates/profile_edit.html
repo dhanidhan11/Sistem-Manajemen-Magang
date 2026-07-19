@@ -1,0 +1,439 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profil{% endblock %}
+{% block page_title %}Edit Profil{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-header {
+        background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+        border-radius: 20px;
+        padding: 40px 30px;
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 32px;
+        box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+    }
+
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        top: -60px;
+        right: -60px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255,255,255,0.07);
+        border-radius: 50%;
+    }
+
+    .profile-header::after {
+        content: '';
+        position: absolute;
+        bottom: -40px;
+        left: -40px;
+        width: 150px;
+        height: 150px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+    }
+
+    .avatar-upload-wrapper {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 16px;
+        cursor: pointer;
+    }
+
+    .avatar-preview {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid rgba(255, 255, 255, 0.6);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        background-color: rgba(255,255,255,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .avatar-upload-wrapper:hover .avatar-preview {
+        opacity: 0.85;
+    }
+
+    .avatar-upload-overlay {
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+        width: 32px;
+        height: 32px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        color: #6366f1;
+        font-size: 0.85rem;
+        transition: transform 0.2s ease;
+    }
+
+    .avatar-upload-wrapper:hover .avatar-upload-overlay {
+        transform: scale(1.15);
+    }
+
+    #foto-input {
+        display: none;
+    }
+
+    .profile-name {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 8px 0 4px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .profile-role-badge {
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255,255,255,0.3);
+        padding: 4px 16px;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        display: inline-block;
+        position: relative;
+        z-index: 1;
+    }
+
+    .section-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid rgba(99, 102, 241, 0.08);
+        box-shadow: 0 4px 20px rgba(99,102,241,0.04);
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
+
+    .section-card-header {
+        padding: 20px 24px 16px;
+        border-bottom: 1px solid #f1f0ff;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .section-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .section-card-body {
+        padding: 24px;
+    }
+
+    .field-group {
+        margin-bottom: 20px;
+    }
+
+    .field-label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #374151;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .field-label .optional {
+        font-weight: 400;
+        color: #9ca3af;
+        font-size: 0.8rem;
+        margin-left: 4px;
+    }
+
+    .field-input {
+        width: 100%;
+        padding: 11px 16px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 0.92rem;
+        color: #1e1b4b;
+        background: #fafafa;
+        transition: all 0.2s ease;
+        outline: none;
+    }
+
+    .field-input:focus {
+        border-color: #6366f1;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+    }
+
+    textarea.field-input {
+        resize: vertical;
+        min-height: 90px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    @media (max-width: 640px) {
+        .form-row { grid-template-columns: 1fr; }
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, #6366f1, #7c3aed);
+        color: white;
+        border: none;
+        padding: 13px 32px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 16px rgba(99,102,241,0.25);
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(99,102,241,0.35);
+    }
+
+    .btn-cancel {
+        background: #f3f4f6;
+        color: #6b7280;
+        border: none;
+        padding: 13px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-cancel:hover {
+        background: #e5e7eb;
+        color: #374151;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<form method="POST" enctype="multipart/form-data" id="profileForm">
+    {% csrf_token %}
+
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <label class="avatar-upload-wrapper" for="foto-input" title="Klik untuk ganti foto">
+            <div id="avatar-display">
+                {% if is_mentor and mentor_profile.foto %}
+                    <img src="{{ mentor_profile.foto.url }}" class="avatar-preview" id="avatar-img" alt="Foto Profil">
+                {% elif is_peserta and peserta_profile.foto %}
+                    <img src="{{ peserta_profile.foto.url }}" class="avatar-preview" id="avatar-img" alt="Foto Profil">
+                {% else %}
+                    <div class="avatar-preview" id="avatar-initials">
+                        {{ user.username|slice:":1"|upper }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="avatar-upload-overlay">
+                <i class="fas fa-camera"></i>
+            </div>
+        </label>
+        <input type="file" name="foto" id="foto-input" accept="image/*">
+
+        <div class="profile-name">
+            {{ user.get_full_name|default:user.username }}
+        </div>
+        <span class="profile-role-badge">
+            {% if is_mentor %}
+                <i class="fas fa-user-tie me-1"></i> Mentor
+                {% if mentor_profile.gelar %}&nbsp;· {{ mentor_profile.gelar }}{% endif %}
+            {% elif is_peserta %}
+                <i class="fas fa-user-graduate me-1"></i> Peserta Magang
+            {% endif %}
+        </span>
+    </div>
+
+    <!-- Informasi Dasar -->
+    <div class="section-card">
+        <div class="section-card-header">
+            <div class="section-icon bg-indigo-50" style="background:#ede9fe">
+                <i class="fas fa-user" style="color:#6366f1"></i>
+            </div>
+            <div>
+                <h6 class="mb-0 fw-bold" style="color:#1e1b4b">Informasi Dasar</h6>
+                <small class="text-muted">Nama yang terlihat di seluruh sistem</small>
+            </div>
+        </div>
+        <div class="section-card-body">
+            <div class="form-row">
+                <div class="field-group">
+                    <label class="field-label" for="first_name">Nama Depan</label>
+                    <input type="text" id="first_name" name="first_name" class="field-input"
+                        value="{{ user.first_name }}" placeholder="Masukkan nama depan">
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="last_name">Nama Belakang</label>
+                    <input type="text" id="last_name" name="last_name" class="field-input"
+                        value="{{ user.last_name }}" placeholder="Masukkan nama belakang">
+                </div>
+            </div>
+            <div class="field-group mb-0">
+                <label class="field-label">Username <span class="optional">(tidak dapat diubah)</span></label>
+                <input type="text" class="field-input" value="{{ user.username }}" disabled
+                    style="opacity:0.6; cursor:not-allowed; background:#f3f4f6;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Informasi Kontak -->
+    {% if is_mentor %}
+    <div class="section-card">
+        <div class="section-card-header">
+            <div class="section-icon" style="background:#ecfdf5">
+                <i class="fas fa-id-badge" style="color:#10b981"></i>
+            </div>
+            <div>
+                <h6 class="mb-0 fw-bold" style="color:#1e1b4b">Informasi Mentor</h6>
+                <small class="text-muted">Data profesional sebagai pembimbing magang</small>
+            </div>
+        </div>
+        <div class="section-card-body">
+            <div class="form-row">
+                <div class="field-group">
+                    <label class="field-label" for="gelar">Gelar Akademik <span class="optional">(opsional)</span></label>
+                    <input type="text" id="gelar" name="gelar" class="field-input"
+                        value="{{ mentor_profile.gelar|default:'' }}"
+                        placeholder="Contoh: S.Kom., M.T., S.Si.">
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="no_hp">Nomor HP / WhatsApp</label>
+                    <input type="text" id="no_hp" name="no_hp" class="field-input"
+                        value="{{ mentor_profile.no_hp|default:'' }}"
+                        placeholder="Contoh: 08123456789">
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if is_peserta %}
+    <div class="section-card">
+        <div class="section-card-header">
+            <div class="section-icon" style="background:#eff6ff">
+                <i class="fas fa-phone-alt" style="color:#3b82f6"></i>
+            </div>
+            <div>
+                <h6 class="mb-0 fw-bold" style="color:#1e1b4b">Informasi Kontak</h6>
+                <small class="text-muted">Nomor dan alamat untuk keperluan magang</small>
+            </div>
+        </div>
+        <div class="section-card-body">
+            <div class="field-group">
+                <label class="field-label" for="no_hp">Nomor HP / WhatsApp</label>
+                <input type="text" id="no_hp" name="no_hp" class="field-input"
+                    value="{{ peserta_profile.no_hp|default:'' }}"
+                    placeholder="Contoh: 08123456789">
+            </div>
+            <div class="field-group mb-0">
+                <label class="field-label" for="alamat">Alamat <span class="optional">(opsional)</span></label>
+                <textarea id="alamat" name="alamat" class="field-input"
+                    placeholder="Masukkan alamat tempat tinggal sekarang">{{ peserta_profile.alamat|default:'' }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Magang (read-only) -->
+    <div class="section-card">
+        <div class="section-card-header">
+            <div class="section-icon" style="background:#fef3c7">
+                <i class="fas fa-graduation-cap" style="color:#f59e0b"></i>
+            </div>
+            <div>
+                <h6 class="mb-0 fw-bold" style="color:#1e1b4b">Informasi Magang</h6>
+                <small class="text-muted">Data magang (hanya dapat diubah oleh Admin)</small>
+            </div>
+        </div>
+        <div class="section-card-body">
+            <div class="form-row">
+                <div class="field-group">
+                    <label class="field-label">NIM / Identitas</label>
+                    <input type="text" class="field-input" value="{{ peserta_profile.nim }}" disabled style="opacity:0.6; cursor:not-allowed; background:#f3f4f6;">
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Institusi</label>
+                    <input type="text" class="field-input" value="{{ peserta_profile.institusi }}" disabled style="opacity:0.6; cursor:not-allowed; background:#f3f4f6;">
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Bidang Penempatan</label>
+                    <input type="text" class="field-input" value="{{ peserta_profile.bidang_penempatan }}" disabled style="opacity:0.6; cursor:not-allowed; background:#f3f4f6;">
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Status</label>
+                    <input type="text" class="field-input" value="{{ peserta_profile.get_status_display }}" disabled style="opacity:0.6; cursor:not-allowed; background:#f3f4f6;">
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Action Buttons -->
+    <div class="d-flex gap-3 flex-wrap pb-2">
+        <button type="submit" class="btn-save">
+            <i class="fas fa-save"></i> Simpan Perubahan
+        </button>
+        {% if is_mentor %}
+        <a href="{% url 'users:dashboard_mentor' %}" class="btn-cancel">
+            <i class="fas fa-arrow-left"></i> Kembali
+        </a>
+        {% elif is_peserta %}
+        <a href="{% url 'users:dashboard_peserta' %}" class="btn-cancel">
+            <i class="fas fa-arrow-left"></i> Kembali
+        </a>
+        {% endif %}
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Preview foto sebelum upload
+    document.getElementById('foto-input').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            const display = document.getElementById('avatar-display');
+            display.innerHTML = `<img src="${ev.target.result}" class="avatar-preview" id="avatar-img" alt="Preview Foto">`;
+        };
+        reader.readAsDataURL(file);
+    });
+</script>
+{% endblock %}

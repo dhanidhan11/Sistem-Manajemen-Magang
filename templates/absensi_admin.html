@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Data Absensi - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-calendar-check me-2 text-primary"></i>
+            Data Absensi Peserta
+        </h2>
+        <div>
+            <span class="badge bg-primary">Total: {{ absensi_list|length }}</span>
+        </div>
+    </div>
+    
+    <div class="card shadow">
+        <div class="card-body">
+            {% if absensi_list %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>No</th>
+                                <th>Peserta</th>
+                                <th>NIM</th>
+                                <th>Tanggal</th>
+                                <th>Check-in</th>
+                                <th>Check-out</th>
+                                <th>Status</th>
+                                <th>Aksi</th>  <!-- <-- KOLOM AKSI -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for absen in absensi_list %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    <strong>{{ absen.peserta.user.get_full_name }}</strong>
+                                </td>
+                                <td>{{ absen.peserta.nim|default:'-' }}</td>
+                                <td>{{ absen.tanggal|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if absen.check_in %}
+                                        {{ absen.check_in|time:"H:i" }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if absen.check_out %}
+                                        {{ absen.check_out|time:"H:i" }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge 
+                                        {% if absen.status == 'hadir' %}bg-success
+                                        {% elif absen.status == 'sakit' %}bg-warning text-dark
+                                        {% elif absen.status == 'izin' %}bg-info
+                                        {% else %}bg-danger{% endif %}">
+                                        {{ absen.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <!-- TOMBOL EDIT -->
+                                    <a href="{% url 'absensi:absensi_admin_edit' absen.id %}" 
+                                       class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-calendar-alt fa-4x text-muted mb-3 d-block"></i>
+                    <h5>Belum ada data absensi</h5>
+                    <p class="text-muted">Belum ada peserta yang melakukan absensi.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Tombol Kembali -->
+    <div class="mt-3">
+        <a href="/dashboard/admin/" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Kembali ke Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

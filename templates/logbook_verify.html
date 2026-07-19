@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Verifikasi Logbook{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Verifikasi Logbook
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h5>{{ logbook.peserta.user.get_full_name }}</h5>
+                    <p class="text-muted">{{ logbook.tanggal|date:"d/m/Y" }}</p>
+                    <hr>
+                    <p><strong>Kegiatan:</strong></p>
+                    <p>{{ logbook.kegiatan }}</p>
+
+                    {% if logbook.dokumentasi %}
+                    <a href="{{ logbook.dokumentasi.url }}" target="_blank" class="btn btn-sm btn-info">
+                        <i class="fas fa-image me-1"></i>Lihat Dokumentasi
+                    </a>
+                    {% endif %}
+
+                    <hr>
+                    <form method="POST" action="{% url 'logbook:logbook_verify' logbook.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check me-2"></i>Verifikasi Logbook
+                        </button>
+                        <a href="{% url 'logbook:logbook_mentor' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Kembali
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

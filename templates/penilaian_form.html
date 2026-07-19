@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if edit_mode %}Ubah Penilaian{% else %}Buat Penilaian{% endif %} - Manajemen Magang{% endblock %}
+
+{% block content %}
+<style>
+    .field-card {
+        background: #fff;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 16px 18px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        height: 100%;
+    }
+    .field-card:focus-within {
+        border-color: #a5b4fc;
+        box-shadow: 0 0 0 4px rgba(99,102,241,0.08);
+    }
+    .field-label {
+        font-weight: 700;
+        font-size: 13px;
+        color: #374151;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+    .score-number-input {
+        width: 62px;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: 800;
+        text-align: center;
+        padding: 2px 4px;
+        outline: none;
+        transition: border-color 0.2s, color 0.2s;
+        -moz-appearance: textfield;
+    }
+    .score-number-input::-webkit-outer-spin-button,
+    .score-number-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .score-number-input:focus { border-color: #6366f1; }
+
+    input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 6px;
+        border-radius: 50px;
+        outline: none;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 20px; height: 20px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid #6366f1;
+        box-shadow: 0 2px 8px rgba(99,102,241,0.35);
+        cursor: pointer;
+        transition: box-shadow 0.2s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+        box-shadow: 0 3px 14px rgba(99,102,241,0.5);
+    }
+    input[type="range"]::-moz-range-thumb {
+        width: 20px; height: 20px;
+        border-radius: 50%; background: white;
+        border: 3px solid #6366f1;
+        box-shadow: 0 2px 8px rgba(99,102,241,0.35);
+    }
+    .ticks {
+        display: flex; justify-content: space-between;
+        padding: 3px 2px 0;
+    }
+    .ticks span { font-size: 10px; color: #9ca3af; font-weight: 600; }
+</style>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <div class="card shadow" style="border-radius: 22px; overflow: hidden; border: none;">
+                <div class="card-header p-4" style="background: {% if edit_mode %}linear-gradient(135deg,#f59e0b,#d97706){% else %}linear-gradient(135deg,#4f46e5,#7c3aed){% endif %}; color:white;">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-award me-2"></i>
+                        {% if edit_mode %}Ubah Penilaian{% else %}Penilaian{% endif %}: {{ peserta.user.get_full_name }}
+                    </h5>
+                    <p class="mb-0 small mt-1" style="opacity:.7;">Geser slider atau ketik nilai langsung (0 – 100)</p>
+                </div>
+                <div class="card-body p-4">
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3">
+                        {{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+                    <form method="POST" id="penilaianForm">
+                        {% csrf_token %}
+                        <div class="row g-3">
+
+                            <!-- Kedisiplinan -->
+                            <div class="col-md-6">
+                                <div class="field-card">
+                                    <div class="field-label">
+                                        <i class="fas fa-clock" style="color:#6366f1;"></i> Kedisiplinan
+                                        <input type="number" id="num_kedisiplinan" class="score-number-input ms-auto" min="0" max="100" value="{{ penilaian.kedisiplinan|default:75 }}" oninput="syncFromNum('kedisiplinan',this.value)">
+                                    </div>
+                                    <input type="range" name="kedisiplinan" id="sl_kedisiplinan" min="0" max="100" step="1" value="{{ penilaian.kedisiplinan|default:75 }}" oninput="syncFromSlider('kedisiplinan',this.value)">
+                                    <div class="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+                                </div>
+                            </div>
+
+                            <!-- Kreativitas -->
+                            <div class="col-md-6">
+                                <div class="field-card">
+                                    <div class="field-label">
+                                        <i class="fas fa-lightbulb" style="color:#6366f1;"></i> Kreativitas
+                                        <input type="number" id="num_kreativitas" class="score-number-input ms-auto" min="0" max="100" value="{{ penilaian.kreativitas|default:75 }}" oninput="syncFromNum('kreativitas',this.value)">
+                                    </div>
+                                    <input type="range" name="kreativitas" id="sl_kreativitas" min="0" max="100" step="1" value="{{ penilaian.kreativitas|default:75 }}" oninput="syncFromSlider('kreativitas',this.value)">
+                                    <div class="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+                                </div>
+                            </div>
+
+                            <!-- Komunikasi -->
+                            <div class="col-md-6">
+                                <div class="field-card">
+                                    <div class="field-label">
+                                        <i class="fas fa-comments" style="color:#6366f1;"></i> Komunikasi
+                                        <input type="number" id="num_komunikasi" class="score-number-input ms-auto" min="0" max="100" value="{{ penilaian.komunikasi|default:75 }}" oninput="syncFromNum('komunikasi',this.value)">
+                                    </div>
+                                    <input type="range" name="komunikasi" id="sl_komunikasi" min="0" max="100" step="1" value="{{ penilaian.komunikasi|default:75 }}" oninput="syncFromSlider('komunikasi',this.value)">
+                                    <div class="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+                                </div>
+                            </div>
+
+                            <!-- Teknis -->
+                            <div class="col-md-6">
+                                <div class="field-card">
+                                    <div class="field-label">
+                                        <i class="fas fa-code" style="color:#6366f1;"></i> Kemampuan Teknis
+                                        <input type="number" id="num_teknis" class="score-number-input ms-auto" min="0" max="100" value="{{ penilaian.teknis|default:75 }}" oninput="syncFromNum('teknis',this.value)">
+                                    </div>
+                                    <input type="range" name="teknis" id="sl_teknis" min="0" max="100" step="1" value="{{ penilaian.teknis|default:75 }}" oninput="syncFromSlider('teknis',this.value)">
+                                    <div class="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+                                </div>
+                            </div>
+
+                            <!-- Presensi -->
+                            <div class="col-md-6">
+                                <div class="field-card">
+                                    <div class="field-label">
+                                        <i class="fas fa-calendar-check" style="color:#6366f1;"></i> Presensi
+                                        <input type="number" id="num_presensi" class="score-number-input ms-auto" min="0" max="100" value="{{ penilaian.presensi|default:75 }}" oninput="syncFromNum('presensi',this.value)">
+                                    </div>
+                                    <input type="range" name="presensi" id="sl_presensi" min="0" max="100" step="1" value="{{ penilaian.presensi|default:75 }}" oninput="syncFromSlider('presensi',this.value)">
+                                    <div class="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+                                </div>
+                            </div>
+
+                            <!-- Presentasi -->
+                            <div class="col-md-6">
+                                <div class="field-card">
+                                    <div class="field-label">
+                                        <i class="fas fa-chalkboard-teacher" style="color:#6366f1;"></i> Presentasi
+                                        <input type="number" id="num_presentasi" class="score-number-input ms-auto" min="0" max="100" value="{{ penilaian.presentasi|default:75 }}" oninput="syncFromNum('presentasi',this.value)">
+                                    </div>
+                                    <input type="range" name="presentasi" id="sl_presentasi" min="0" max="100" step="1" value="{{ penilaian.presentasi|default:75 }}" oninput="syncFromSlider('presentasi',this.value)">
+                                    <div class="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+                                </div>
+                            </div>
+
+                            <!-- Sikap -->
+                            <div class="col-12">
+                                <div class="field-card">
+                                    <div class="field-label">
+                                        <i class="fas fa-handshake" style="color:#6366f1;"></i> Sikap & Etika
+                                        <input type="number" id="num_sikap" class="score-number-input ms-auto" min="0" max="100" value="{{ penilaian.sikap|default:75 }}" oninput="syncFromNum('sikap',this.value)">
+                                    </div>
+                                    <input type="range" name="sikap" id="sl_sikap" min="0" max="100" step="1" value="{{ penilaian.sikap|default:75 }}" oninput="syncFromSlider('sikap',this.value)">
+                                    <div class="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+                                </div>
+                            </div>
+
+                            <!-- Rata-rata Preview -->
+                            <div class="col-12">
+                                <div class="p-3 rounded-3 text-center" style="border:1.5px solid #e5e7eb; background:#fafafa;">
+                                    <div class="text-muted small fw-semibold mb-1" style="text-transform:uppercase;letter-spacing:.5px;">Rata-rata Nilai</div>
+                                    <div id="avgPreview" class="fw-black" style="font-size:46px;line-height:1;color:#6366f1;">75</div>
+                                    <div id="gradeLabel" class="mt-1 fw-bold" style="font-size:13px;color:#6366f1;">Baik</div>
+                                </div>
+                            </div>
+
+                            <!-- Catatan -->
+                            <div class="col-12">
+                                <label class="fw-bold mb-2 d-block">
+                                    <i class="fas fa-sticky-note me-1 text-warning"></i> Catatan Evaluasi
+                                    <span class="text-muted fw-normal">(opsional)</span>
+                                </label>
+                                <textarea name="catatan" class="form-control" rows="3" placeholder="Tambahkan catatan evaluasi untuk peserta..." style="border-radius:12px;">{{ penilaian.catatan|default:'' }}</textarea>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-{% if edit_mode %}warning text-dark{% else %}primary{% endif %} rounded-pill px-5 fw-bold shadow-sm">
+                                <i class="fas fa-save me-2"></i>{% if edit_mode %}Simpan Perubahan{% else %}Simpan Penilaian{% endif %}
+                            </button>
+                            <a href="{% url 'penilaian:penilaian_list' %}" class="btn btn-outline-secondary rounded-pill px-4">Batal</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const fields = ['kedisiplinan','kreativitas','komunikasi','teknis','presensi','presentasi','sikap'];
+
+    function getColor(v) {
+        if (v >= 90) return '#059669';
+        if (v >= 80) return '#2563eb';
+        if (v >= 70) return '#d97706';
+        return '#dc2626';
+    }
+
+    function getGrade(v) {
+        if (v >= 90) return 'Sangat Baik';
+        if (v >= 80) return 'Baik';
+        if (v >= 70) return 'Cukup';
+        if (v >= 60) return 'Kurang';
+        return 'Sangat Kurang';
+    }
+
+    function trackGradient(v) {
+        const c = getColor(v);
+        return `linear-gradient(to right, ${c} 0%, ${c} ${v}%, #e5e7eb ${v}%, #e5e7eb 100%)`;
+    }
+
+    function applyColor(field, v) {
+        const c = getColor(v);
+        const sl = document.getElementById('sl_' + field);
+        const num = document.getElementById('num_' + field);
+        sl.style.background = trackGradient(v);
+        // Update thumb border via inline style trick on wrapper
+        sl.style.setProperty('border-color', c);
+        num.style.color = c;
+        num.style.borderColor = c;
+    }
+
+    function syncFromSlider(field, value) {
+        const v = Math.min(100, Math.max(0, parseInt(value) || 0));
+        document.getElementById('num_' + field).value = v;
+        applyColor(field, v);
+        updateAverage();
+    }
+
+    function syncFromNum(field, value) {
+        let v = parseInt(value);
+        if (isNaN(v)) return;
+        v = Math.min(100, Math.max(0, v));
+        document.getElementById('sl_' + field).value = v;
+        applyColor(field, v);
+        updateAverage();
+    }
+
+    function updateAverage() {
+        let total = 0;
+        fields.forEach(function(f) {
+            total += parseInt(document.getElementById('sl_' + f).value) || 0;
+        });
+        const avg = (total / fields.length).toFixed(1);
+        const avgEl = document.getElementById('avgPreview');
+        const gradeEl = document.getElementById('gradeLabel');
+        const c = getColor(parseFloat(avg));
+        avgEl.textContent = avg;
+        avgEl.style.color = c;
+        gradeEl.textContent = getGrade(parseFloat(avg));
+        gradeEl.style.color = c;
+    }
+
+    // Init on page load
+    fields.forEach(function(f) {
+        const v = parseInt(document.getElementById('sl_' + f).value) || 75;
+        applyColor(f, v);
+    });
+    updateAverage();
+</script>
+{% endblock %}

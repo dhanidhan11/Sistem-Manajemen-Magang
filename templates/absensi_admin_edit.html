@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Absensi - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>
+                        Edit Absensi - {{ absensi.peserta.user.get_full_name }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Tanggal</label>
+                                <input type="date" name="tanggal" class="form-control" 
+                                       value="{{ absensi.tanggal|date:'Y-m-d' }}" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Status</label>
+                                <select name="status" class="form-select">
+                                    <option value="hadir" {% if absensi.status == 'hadir' %}selected{% endif %}>Hadir</option>
+                                    <option value="sakit" {% if absensi.status == 'sakit' %}selected{% endif %}>Sakit</option>
+                                    <option value="izin" {% if absensi.status == 'izin' %}selected{% endif %}>Izin</option>
+                                    <option value="alpha" {% if absensi.status == 'alpha' %}selected{% endif %}>Alpha</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Check-in</label>
+                                <input type="time" name="check_in" class="form-control" 
+                                       value="{{ absensi.check_in|time:'H:i' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Check-out</label>
+                                <input type="time" name="check_out" class="form-control" 
+                                       value="{{ absensi.check_out|time:'H:i' }}">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Keterangan</label>
+                                <textarea name="keterangan" class="form-control" rows="2">{{ absensi.keterangan }}</textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save me-2"></i>Update
+                            </button>
+                            <a href="/absensi/" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Kembali
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

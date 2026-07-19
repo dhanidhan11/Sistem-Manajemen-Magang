@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Daftar Peserta - Manajemen Magang{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-users me-2 text-primary"></i>
+            Daftar Peserta Magang
+        </h2>
+        <a href="{% url 'peserta:peserta_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Tambah Peserta
+        </a>
+    </div>
+    
+    {% if peserta_list %}
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        <th>NIM</th>
+                        <th>Institusi</th>
+                        <th>Bidang</th>
+                        <th>Mentor</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for peserta in peserta_list %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ peserta.user.get_full_name }}</td>
+                        <td>{{ peserta.nim }}</td>
+                        <td>{{ peserta.institusi }}</td>
+                        <td>{{ peserta.bidang_penempatan }}</td>
+                        <td>{{ peserta.mentor.get_full_name|default:'-' }}</td>
+                        <td>
+                            <span class="badge {% if peserta.status == 'aktif' %}bg-success{% else %}bg-secondary{% endif %}">
+                                {{ peserta.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'peserta:peserta_edit' peserta.id %}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'peserta:peserta_delete' peserta.id %}" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle fa-2x d-block mb-2"></i>
+            <h5>Belum ada peserta</h5>
+            <p>Klik tombol "Tambah Peserta" untuk menambahkan peserta magang.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

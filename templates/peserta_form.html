@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Tambah Peserta - Manajemen Magang{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Tambah Peserta Magang
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Username</label>
+                                <input type="text" name="username" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Password</label>
+                                <input type="password" name="password" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Nama Depan</label>
+                                <input type="text" name="nama_depan" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Nama Belakang</label>
+                                <input type="text" name="nama_belakang" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Email</label>
+                                <input type="email" name="email" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">NIM</label>
+                                <input type="text" name="nim" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Institusi</label>
+                                <input type="text" name="institusi" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Jurusan</label>
+                                <input type="text" name="jurusan" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">No. HP</label>
+                                <input type="text" name="no_hp" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Bidang Penempatan</label>
+                                <input type="text" name="bidang_penempatan" class="form-control" required>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">Alamat</label>
+                                <textarea name="alamat" class="form-control" rows="2"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Mentor</label>
+                                <select name="mentor" class="form-select">
+                                    <option value="">Pilih Mentor</option>
+                                    {% for mentor in mentors %}
+                                    <option value="{{ mentor.id }}">{{ mentor.get_full_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Status</label>
+                                <select name="status" class="form-select">
+                                    <option value="aktif">Aktif</option>
+                                    <option value="selesai">Selesai</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Tanggal Mulai</label>
+                                <input type="date" name="tanggal_mulai" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Tanggal Selesai</label>
+                                <input type="date" name="tanggal_selesai" class="form-control" required>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>Simpan
+                            </button>
+                            <a href="{% url 'peserta:peserta_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Kembali
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

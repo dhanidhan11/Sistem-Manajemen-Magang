@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Dashboard Admin{% endblock %}
+
+{% block content %}
+<style>
+    .card-stat {
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        color: white;
+    }
+    
+    .card-stat:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    }
+
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .bg-gradient-warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    }
+
+    .bg-gradient-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .card-action-admin {
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s ease;
+        background: #ffffff;
+    }
+
+    .card-action-admin:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .icon-box {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    .table-responsive {
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+        border: none;
+    }
+
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 12px;
+    }
+
+    .status-badge.aktif {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-badge.selesai {
+        background-color: #f3f4f6;
+        color: #374151;
+    }
+</style>
+
+<div class="row g-3 mb-4 justify-content-center">
+        <!-- Total Peserta -->
+        <div class="col-md-4 col-sm-6">
+            <div class="card card-stat bg-gradient-primary">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-white-50 small text-uppercase font-weight-bold">Total Peserta</span>
+                        <h3 class="mb-0 mt-1 fw-bold">{{ total_peserta }}</h3>
+                    </div>
+                    <i class="fas fa-users fa-2x text-white-50"></i>
+                </div>
+            </div>
+        </div>
+        <!-- Peserta Aktif -->
+        <div class="col-md-4 col-sm-6">
+            <div class="card card-stat bg-gradient-success">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-white-50 small text-uppercase font-weight-bold">Peserta Aktif</span>
+                        <h3 class="mb-0 mt-1 fw-bold">{{ peserta_aktif }}</h3>
+                    </div>
+                    <i class="fas fa-user-check fa-2x text-white-50"></i>
+                </div>
+            </div>
+        </div>
+        <!-- Total Mentor -->
+        <div class="col-md-4 col-sm-6">
+            <a href="{% url 'users:mentor_list' %}" class="text-decoration-none">
+                <div class="card card-stat bg-gradient-info">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-white-50 small text-uppercase font-weight-bold">Total Mentor</span>
+                            <h3 class="mb-0 mt-1 fw-bold">{{ total_mentor }}</h3>
+                        </div>
+                        <i class="fas fa-user-tie fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Absensi Hari Ini -->
+        <div class="col-md-6 col-sm-6">
+            <div class="card card-stat bg-gradient-warning">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-white-50 small text-uppercase font-weight-bold">Absen Hari Ini</span>
+                        <h3 class="mb-0 mt-1 fw-bold">{{ absensi_hari_ini }}</h3>
+                    </div>
+                    <i class="fas fa-calendar-day fa-2x text-white-50"></i>
+                </div>
+            </div>
+        </div>
+        <!-- Logbook Pending -->
+        <div class="col-md-6 col-sm-6">
+            <div class="card card-stat bg-gradient-danger">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-white-50 small text-uppercase font-weight-bold">Logbook Baru</span>
+                        <h3 class="mb-0 mt-1 fw-bold">{{ logbook_pending }}</h3>
+                    </div>
+                    <i class="fas fa-envelope-open-text fa-2x text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <!-- Quick Actions Panel -->
+        <div class="col-lg-4">
+            <div class="card h-100 border-0 shadow-sm" style="border-radius: 16px;">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-3">Aksi Cepat</h5>
+                    <div class="d-grid gap-3">
+                        <a href="{% url 'peserta:peserta_list' %}" class="text-decoration-none">
+                            <div class="card card-action-admin p-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-box bg-primary bg-opacity-10 text-primary me-3">
+                                        <i class="fas fa-user-plus"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-dark">Kelola Peserta</h6>
+                                        <small class="text-muted">Tambah, edit & bimbingan</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="{% url 'users:mentor_list' %}" class="text-decoration-none">
+                            <div class="card card-action-admin p-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-box bg-warning bg-opacity-10 text-warning me-3">
+                                        <i class="fas fa-user-shield"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-dark">Kelola Mentor</h6>
+                                        <small class="text-muted">Manajemen mentor & bidang</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="{% url 'laporan:laporan_admin' %}" class="text-decoration-none">
+                            <div class="card card-action-admin p-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-box bg-success bg-opacity-10 text-success me-3">
+                                        <i class="fas fa-file-invoice"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-dark">Laporan Admin</h6>
+                                        <small class="text-muted">Ekspor excel & rekap kehadiran</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="{% url 'penilaian:penilaian_list' %}" class="text-decoration-none">
+                            <div class="card card-action-admin p-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-box bg-info bg-opacity-10 text-info me-3">
+                                        <i class="fas fa-award"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-dark">Evaluasi Nilai</h6>
+                                        <small class="text-muted">Pantau nilai peserta magang</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recently Added Interns -->
+        <div class="col-lg-8">
+            <div class="card h-100 border-0 shadow-sm" style="border-radius: 16px;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title fw-bold mb-0">Peserta Terbaru</h5>
+                        <a href="{% url 'peserta:peserta_list' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Lihat Semua</a>
+                    </div>
+                    
+                    {% if peserta_terbaru %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 bg-white">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Peserta</th>
+                                    <th>Institusi</th>
+                                    <th>Penempatan</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in peserta_terbaru %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold me-2" style="width: 35px; height: 35px; font-size: 14px;">
+                                                {{ p.user.first_name|slice:":1"|upper }}
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark mb-0">{{ p.user.get_full_name }}</div>
+                                                <small class="text-muted">{{ p.nim }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">{{ p.institusi }}</div>
+                                        <small class="text-muted">{{ p.jurusan }}</small>
+                                    </td>
+                                    <td><span class="badge bg-secondary bg-opacity-10 text-secondary fw-semibold">{{ p.bidang_penempatan }}</span></td>
+                                    <td>
+                                        <span class="status-badge {% if p.status == 'aktif' %}aktif{% else %}selesai{% endif %}">
+                                            {{ p.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-users-slash fa-3x mb-3 text-black-50"></i>
+                        <p class="mb-0">Belum ada data peserta terdaftar.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

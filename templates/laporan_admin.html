@@ -1,0 +1,371 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Laporan Rekapitulasi Admin{% endblock %}
+{% block page_title %}Laporan Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ===== SCREEN STYLES ===== */
+.report-header-banner {
+    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+    border-radius: 20px;
+    padding: 32px;
+    color: white;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+}
+
+.report-header-banner::after {
+    content: '';
+    position: absolute;
+    right: -40px; top: -40px;
+    width: 180px; height: 180px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 50%;
+}
+
+.section-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid rgba(13,148,136,0.08);
+    box-shadow: 0 4px 20px rgba(13,148,136,0.04);
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+
+.section-card-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid #f0fdfa;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #1e1b4b;
+}
+
+.section-card-body { padding: 24px; }
+
+.stat-mini {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+}
+
+.stat-mini .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0d9488;
+    line-height: 1;
+}
+
+.stat-mini .lbl {
+    font-size: 0.78rem;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+.data-box {
+    background: #fafafa;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.data-box:last-child { margin-bottom: 0; }
+
+.data-box .label { font-weight: 600; color: #374151; font-size: 0.85rem; }
+.data-box .value { font-weight: 700; color: #0d9488; font-size: 1rem; }
+
+.status-badge-sm {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.btn-print-pdf {
+    background: linear-gradient(135deg, #0d9488, #0f766e);
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 16px rgba(13,148,136,0.25);
+}
+
+.btn-print-pdf:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(13,148,136,0.35);
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+    /* Hide sidebar, header, and non-print elements */
+    .sidebar, .main-wrapper .top-header, .no-print,
+    .app-container > .sidebar { display: none !important; }
+
+    .main-wrapper { margin-left: 0 !important; }
+    .content-body { padding: 0 !important; }
+
+    body {
+        background: white !important;
+        font-family: 'Times New Roman', serif !important;
+        font-size: 11pt !important;
+        color: #000 !important;
+    }
+
+    /* Print header */
+    .print-only-header {
+        display: block !important;
+        text-align: center;
+        border-bottom: 3px double #000;
+        padding-bottom: 16px;
+        margin-bottom: 24px;
+    }
+
+    .print-only-header h2 {
+        font-size: 16pt;
+        font-weight: bold;
+        margin: 0 0 4px;
+    }
+
+    .print-only-header p {
+        font-size: 10pt;
+        color: #555;
+        margin: 2px 0;
+    }
+
+    .report-header-banner { display: none !important; }
+
+    .section-card {
+        border: 1px solid #aaa !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        margin-bottom: 16px !important;
+        page-break-inside: avoid;
+    }
+
+    .section-card-header {
+        background: #e8e8e8 !important;
+        color: #000 !important;
+        padding: 8px 14px !important;
+        font-size: 10pt !important;
+    }
+
+    .section-card-body { padding: 12px 14px !important; }
+
+    .stat-mini {
+        border: 1px solid #ccc !important;
+        border-radius: 4px !important;
+        padding: 8px !important;
+        background: #f5f5f5 !important;
+    }
+
+    .stat-mini .num { font-size: 18pt !important; color: #000 !important; }
+
+    .data-box {
+        border: 1px solid #ccc !important;
+        background: none !important;
+        padding: 6px 10px !important;
+        border-radius: 0 !important;
+    }
+    .data-box .value { color: #000 !important; }
+
+    table { border-collapse: collapse !important; width: 100%; font-size: 9pt; }
+    th { background: #333 !important; color: #fff !important; padding: 5px 8px !important; }
+    td { padding: 4px 8px !important; border: 1px solid #ccc !important; }
+
+    .no-print { display: none !important; }
+
+    .print-footer {
+        display: block !important;
+        text-align: right;
+        font-size: 9pt;
+        color: #777;
+        border-top: 1px solid #ccc;
+        margin-top: 24px;
+        padding-top: 8px;
+    }
+}
+
+/* Hidden on screen, shown on print */
+.print-only-header, .print-footer { display: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Print-only header (invisible on screen) -->
+<div class="print-only-header">
+    <h2>LAPORAN REKAPITULASI MAGANG — DISKOMINFOSANTIK</h2>
+    <p>Admin Pusat &nbsp;|&nbsp; Rekapitulasi Data Seluruh Peserta</p>
+    <p>Dicetak: {{ today|date:"d F Y" }}</p>
+</div>
+
+<!-- Screen banner -->
+<div class="report-header-banner no-print">
+    <div class="d-flex align-items-center gap-4 position-relative" style="z-index:1;">
+        <div>
+            <div style="opacity:0.8; font-size:0.8rem; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">
+                Laporan Admin Pusat
+            </div>
+            <h2 style="font-size:1.6rem; font-weight:800; margin:0 0 4px;">
+                Rekapitulasi Data Magang
+            </h2>
+            <div style="opacity:0.85; font-size:0.9rem;">
+                Keseluruhan Peserta, Bidang, dan Mentor Diskominfosantik
+            </div>
+        </div>
+        <div class="ms-auto text-end d-none d-md-block">
+            <div style="opacity:0.7; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.5px;">Tanggal Cetak</div>
+            <div style="font-weight:700;">{{ today|date:"d F Y" }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- 1. Ringkasan Statistik Utama -->
+<div class="section-card">
+    <div class="section-card-header">
+        <i class="fas fa-chart-line" style="color:#0d9488;"></i> Ringkasan Statistik Global
+    </div>
+    <div class="section-card-body">
+        <div class="row g-3">
+            <div class="col-4">
+                <div class="stat-mini">
+                    <div class="num">{{ total_peserta }}</div>
+                    <div class="lbl">Total Peserta</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-mini">
+                    <div class="num">{{ total_peserta_aktif }}</div>
+                    <div class="lbl">Peserta Aktif</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-mini">
+                    <div class="num">{{ total_absensi_hari_ini }}</div>
+                    <div class="lbl">Absensi Hari Ini</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- 2. Per Bidang -->
+    <div class="col-lg-6">
+        <div class="section-card h-100">
+            <div class="section-card-header">
+                <i class="fas fa-layer-group" style="color:#3b82f6;"></i> Distribusi Per Bidang
+            </div>
+            <div class="section-card-body">
+                {% if bidang_data %}
+                    {% for item in bidang_data %}
+                    <div class="data-box">
+                        <div class="label">{{ item.bidang_penempatan }}</div>
+                        <div class="value">{{ item.total }} Orang</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center py-3">Belum ada data distribusi bidang.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Per Mentor -->
+    <div class="col-lg-6 mt-4 mt-lg-0">
+        <div class="section-card h-100">
+            <div class="section-card-header">
+                <i class="fas fa-user-tie" style="color:#8b5cf6;"></i> Beban Bimbingan Mentor
+            </div>
+            <div class="section-card-body">
+                {% if mentor_data %}
+                    {% for item in mentor_data %}
+                    <div class="data-box">
+                        <div class="label">{{ item.mentor__first_name }} {{ item.mentor__last_name }}</div>
+                        <div class="value">{{ item.total }} Peserta</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center py-3">Belum ada data distribusi mentor.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 4. Absensi Terakhir -->
+<div class="section-card mt-4">
+    <div class="section-card-header">
+        <i class="fas fa-calendar-check" style="color:#f59e0b;"></i> Log Absensi Terakhir (Sampel 30 Data)
+    </div>
+    <div class="section-card-body" style="padding:0;">
+        {% if absensi_terakhir %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" style="font-size:0.875rem;">
+                <thead style="background:#f9fafb;">
+                    <tr>
+                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">No</th>
+                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">Peserta</th>
+                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">Tanggal</th>
+                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">Check-in / Out</th>
+                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for absen in absensi_terakhir %}
+                    <tr>
+                        <td style="padding:10px 20px;">{{ forloop.counter }}</td>
+                        <td style="padding:10px 20px; font-weight:600;">{{ absen.peserta.user.get_full_name }}</td>
+                        <td style="padding:10px 20px;">{{ absen.tanggal|date:"d M Y" }}</td>
+                        <td style="padding:10px 20px;">{{ absen.check_in|time:"H:i"|default:'-' }} / {{ absen.check_out|time:"H:i"|default:'-' }}</td>
+                        <td style="padding:10px 20px;">
+                            <span class="status-badge-sm {% if absen.status == 'hadir' %}bg-success text-white{% elif absen.status == 'sakit' %}bg-warning text-dark{% elif absen.status == 'izin' %}bg-info text-white{% else %}bg-danger text-white{% endif %}">
+                                {{ absen.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-muted"><p>Belum ada riwayat absensi.</p></div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Tombol Aksi -->
+<div class="d-flex gap-3 pb-4 no-print mt-4">
+    <a href="{% url 'users:dashboard_admin' %}" class="btn btn-light fw-600 border" style="border-radius:10px; padding:10px 20px;">
+        <i class="fas fa-arrow-left me-2"></i>Kembali
+    </a>
+    <button onclick="window.print()" class="btn-print-pdf">
+        <i class="fas fa-file-pdf"></i> Cetak PDF
+    </button>
+</div>
+
+<!-- Print footer -->
+<div class="print-footer">
+    Dicetak dari Sistem Manajemen Magang — Diskominfosantik &nbsp;|&nbsp; {{ today|date:"d F Y" }}
+</div>
+{% endblock %}

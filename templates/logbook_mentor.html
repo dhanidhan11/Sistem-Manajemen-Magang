@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}Logbook Peserta - Mentor{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-book-reader me-2 text-success"></i>
+            Logbook Peserta Bimbingan
+        </h2>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Search Form -->
+    <div class="card shadow-sm border-0 mb-4" style="border-radius: 15px;">
+        <div class="card-body">
+            <form method="GET" action="" class="row g-3 align-items-center">
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                        <input type="text" name="q" class="form-control border-start-0" placeholder="Cari berdasarkan NIM atau Nama Peserta..." value="{{ search_query|default:'' }}">
+                    </div>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-primary rounded-pill shadow-sm">Cari</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0" style="border-radius: 15px;">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Peserta</th>
+                            <th>Tanggal</th>
+                            <th>Kegiatan</th>
+                            <th>Dokumentasi</th>
+                            <th>Status</th>
+                            <th class="text-center pe-4">Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if logbooks %}
+                            {% for log in logbooks %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold">{{ log.peserta.user.get_full_name }}</div>
+                                    <small class="text-muted">{{ log.peserta.nim }}</small>
+                                </td>
+                                <td class="text-nowrap">{{ log.tanggal|date:"d/m/Y" }}</td>
+                                <td>
+                                    <div class="text-wrap" style="max-width: 250px;">
+                                        {% if log.tugas_terkait %}
+                                        <div class="mb-1">
+                                            <span class="badge bg-primary rounded-pill"><i class="fas fa-project-diagram me-1"></i>Projek: {{ log.tugas_terkait.judul|truncatechars:30 }}</span>
+                                        </div>
+                                        {% else %}
+                                        <div class="mb-1">
+                                            <span class="badge bg-secondary rounded-pill"><i class="fas fa-calendar-alt me-1"></i>Harian Biasa</span>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {{ log.kegiatan|truncatechars:150 }}
+                                        
+                                        {% if log.catatan_mentor %}
+                                            <div class="mt-1 small text-primary fw-bold">
+                                                <i class="fas fa-comment me-1"></i>Catatan Anda: {{ log.catatan_mentor }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if log.dokumentasi %}
+                                        <a href="{{ log.dokumentasi.url }}" target="_blank">
+                                            <img src="{{ log.dokumentasi.url }}" class="rounded shadow-sm" style="width: 45px; height: 45px; object-fit: cover;">
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted small">No image</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if log.status == 'diverifikasi' %}
+                                        <span class="badge bg-success rounded-pill">Verified</span>
+                                    {% elif log.status == 'dikirim' %}
+                                        <span class="badge bg-warning text-dark rounded-pill">Pending</span>
+                                    {% elif log.status == 'perlu_revisi' %}
+                                        <span class="badge bg-danger rounded-pill">Needs Revision</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary rounded-pill">{{ log.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center pe-4">
+                                    {% if log.status == 'dikirim' %}
+                                    <button class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalVerify{{ log.id }}">
+                                        <i class="fas fa-search me-1"></i>Periksa
+                                    </button>
+
+                                    <!-- Modal Verifikasi -->
+                                    <div class="modal fade" id="modalVerify{{ log.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content" style="border-radius: 15px; border: none;">
+                                                <div class="modal-header bg-light" style="border-radius: 15px 15px 0 0;">
+                                                    <h5 class="modal-title">Verifikasi Logbook</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <form method="POST" action="{% url 'logbook:logbook_verify' log.id %}">
+                                                    {% csrf_token %}
+                                                    <div class="modal-body text-start">
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold">Dari: {{ log.peserta.user.get_full_name }}</label>
+                                                            <div class="p-3 bg-light rounded text-muted small">{{ log.kegiatan }}</div>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold font-sm">Catatan / Feedback</label>
+                                                            <textarea name="catatan" class="form-control" rows="3" placeholder="Tulis catatan atau alasan revisi jika diperlukan..."></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer border-0">
+                                                        <button type="submit" name="action" value="reject" class="btn btn-outline-warning rounded-pill px-4">
+                                                            <i class="fas fa-undo me-1"></i>Minta Revisi
+                                                        </button>
+                                                        <button type="submit" name="action" value="approve" class="btn btn-success rounded-pill px-4">
+                                                            <i class="fas fa-check me-1"></i>Verifikasi
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <span class="text-muted small">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="fas fa-inbox fa-3x mb-3 opacity-25"></i>
+                                    <p class="mb-0">Tidak ada logbook yang perlu diperiksa saat ini.</p>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginasi -->
+            {% if logbooks.has_other_pages %}
+            <div class="d-flex justify-content-between align-items-center mt-3 p-3 bg-light" style="border-radius: 0 0 15px 15px;">
+                <div class="text-muted small">
+                    Halaman {{ logbooks.number }} dari {{ logbooks.paginator.num_pages }} 
+                    (Total {{ logbooks.paginator.count }} Logbook)
+                </div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        {% if logbooks.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link shadow-sm" href="?page={{ logbooks.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Sebelumnya</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link bg-light text-muted">Sebelumnya</span>
+                            </li>
+                        {% endif %}
+                        
+                        {% if logbooks.has_next %}
+                            <li class="page-item ms-2">
+                                <a class="page-link shadow-sm" href="?page={{ logbooks.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Selanjutnya</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item ms-2 disabled">
+                                <span class="page-link bg-light text-muted">Selanjutnya</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

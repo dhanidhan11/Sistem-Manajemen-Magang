@@ -1,0 +1,294 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistem Manajemen Magang{% endblock %}</title>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5.3 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Premium Stylesheet -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    {% if user.is_authenticated %}
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="brand-name">
+                    M-DIS
+                    <span>DISKOMINFOSANTIK</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <div class="menu-label">Menu Utama</div>
+                <ul class="nav-list">
+                    {% if user.groups.all|length > 0 %}
+                        {% for group in user.groups.all %}
+                            {% if group.name == 'Admin' %}
+                                <li>
+                                    <a href="/dashboard/admin/" class="nav-link-item {% if request.path == '/dashboard/admin/' %}active{% endif %}">
+                                        <i class="fas fa-th-large"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/peserta/" class="nav-link-item {% if '/peserta' in request.path %}active{% endif %}">
+                                        <i class="fas fa-user-friends"></i> Peserta
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'users:mentor_list' %}" class="nav-link-item {% if '/mentors' in request.path %}active{% endif %}">
+                                        <i class="fas fa-user-tie"></i> Mentor
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/absensi/" class="nav-link-item {% if '/absensi' in request.path %}active{% endif %}">
+                                        <i class="fas fa-calendar-alt"></i> Absensi
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/penilaian/" class="nav-link-item {% if '/penilaian' in request.path %}active{% endif %}">
+                                        <i class="fas fa-star"></i> Penilaian
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/laporan/admin/" class="nav-link-item {% if '/laporan' in request.path %}active{% endif %}">
+                                        <i class="fas fa-file-invoice"></i> Laporan
+                                    </a>
+                                </li>
+                            {% elif group.name == 'Mentor' %}
+                                <li>
+                                    <a href="/dashboard/mentor/" class="nav-link-item {% if request.path == '/dashboard/mentor/' %}active{% endif %}">
+                                        <i class="fas fa-th-large"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/logbook/mentor/" class="nav-link-item {% if '/logbook/mentor' in request.path %}active{% endif %}">
+                                        <i class="fas fa-book-open"></i> Logbook Bimbingan
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'tugas:tugas_list_mentor' %}" class="nav-link-item {% if '/tugas/mentor' in request.path %}active{% endif %}">
+                                        <i class="fas fa-tasks"></i> Daftar Tugas
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'users:mentor_verification' %}" class="nav-link-item {% if '/verification' in request.path %}active{% endif %}">
+                                        <i class="fas fa-user-check"></i> Verifikasi Peserta
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/penilaian/" class="nav-link-item {% if '/penilaian' in request.path %}active{% endif %}">
+                                        <i class="fas fa-star"></i> Penilaian
+                                    </a>
+                                </li>
+                            {% elif group.name == 'Peserta' %}
+                                <li>
+                                    <a href="/dashboard/peserta/" class="nav-link-item {% if request.path == '/dashboard/peserta/' %}active{% endif %}">
+                                        <i class="fas fa-th-large"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/absensi/" class="nav-link-item {% if '/absensi' in request.path %}active{% endif %}">
+                                        <i class="fas fa-calendar-check"></i> Absensi
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/logbook/" class="nav-link-item {% if '/logbook' in request.path and '/mentor' not in request.path %}active{% endif %}">
+                                        <i class="fas fa-book"></i> Logbook
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'tugas:tugas_list_peserta' %}" class="nav-link-item {% if '/tugas/peserta' in request.path %}active{% endif %}">
+                                        <i class="fas fa-clipboard-list"></i> Tugas Saya
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'projek:projek_detail' %}" class="nav-link-item {% if '/projek/' in request.path %}active{% endif %}">
+                                        <i class="fas fa-project-diagram"></i> Projek Saya
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/laporan/" class="nav-link-item {% if '/laporan' in request.path %}active{% endif %}">
+                                        <i class="fas fa-file-alt"></i> Laporan
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <!-- Fallback jika tidak memiliki grup -->
+                        <li>
+                            <a href="#" class="nav-link-item active">
+                                <i class="fas fa-exclamation-circle"></i> No Role Assigned
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                {% for group in user.groups.all %}
+                    {% if group.name == 'Mentor' or group.name == 'Peserta' %}
+                    <a href="{% url 'users:profile_edit' %}" class="user-profile user-profile-link" title="Edit Profil Saya">
+                    {% else %}
+                    <div class="user-profile">
+                    {% endif %}
+                        <!-- Avatar: tampilkan foto jika ada -->
+                        {% if group.name == 'Mentor' %}
+                            {% if user.mentor_profile.foto %}
+                                <img src="{{ user.mentor_profile.foto.url }}" class="user-avatar-img" alt="Foto">
+                            {% else %}
+                                <div class="user-avatar">{{ user.username|slice:":1"|upper }}</div>
+                            {% endif %}
+                        {% elif group.name == 'Peserta' %}
+                            {% if user.peserta.foto %}
+                                <img src="{{ user.peserta.foto.url }}" class="user-avatar-img" alt="Foto">
+                            {% else %}
+                                <div class="user-avatar">{{ user.username|slice:":1"|upper }}</div>
+                            {% endif %}
+                        {% else %}
+                            <div class="user-avatar">{{ user.username|slice:":1"|upper }}</div>
+                        {% endif %}
+
+                        <div class="user-details">
+                            <div class="user-name" title="{{ user.get_full_name|default:user.username }}">
+                                {{ user.get_full_name|default:user.username }}
+                            </div>
+                            <div class="user-role">
+                                {% if group.name == 'Mentor' %}
+                                    {% if user.mentor_profile.gelar %}{{ user.mentor_profile.gelar }} &middot; {% endif %}
+                                {% endif %}
+                                {{ group.name }}
+                            </div>
+                        </div>
+                        {% if group.name == 'Mentor' or group.name == 'Peserta' %}
+                        <div style="color:#a5b4fc; font-size:0.75rem; flex-shrink:0; margin-left:auto;">
+                            <i class="fas fa-pen"></i>
+                        </div>
+                        {% endif %}
+                    {% if group.name == 'Mentor' or group.name == 'Peserta' %}
+                    </a>
+                    {% else %}
+                    </div>
+                    {% endif %}
+                {% empty %}
+                <div class="user-profile">
+                    <div class="user-avatar">{{ user.username|slice:":1"|upper }}</div>
+                    <div class="user-details">
+                        <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                        <div class="user-role">Staff</div>
+                    </div>
+                </div>
+                {% endfor %}
+                <a href="/logout/" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Keluar Aplikasi
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <div class="main-wrapper">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="sidebar-toggle" id="sidebarCollapse">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="header-title-area">
+                        <h1>{% block page_title %}Sistem Manajemen Magang{% endblock %}</h1>
+                        <p class="text-muted d-none d-sm-block">Selamat datang di portal informasi magang Diskominfosantik</p>
+                    </div>
+                </div>
+                
+                <div class="header-actions">
+                    <div class="datetime-badge d-none d-md-flex">
+                        <i class="far fa-calendar-alt"></i>
+                        <span id="live-date">...</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Container -->
+            <main class="content-body">
+                <!-- Messages/Notifications -->
+                {% if messages %}
+                <div class="container-fluid px-0">
+                    {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show alert-premium" role="alert">
+                        <div class="d-flex align-items-center gap-2">
+                            {% if message.tags == 'error' %}
+                                <i class="fas fa-times-circle text-danger fs-5"></i>
+                            {% elif message.tags == 'success' %}
+                                <i class="fas fa-check-circle text-success fs-5"></i>
+                            {% else %}
+                                <i class="fas fa-info-circle text-info fs-5"></i>
+                            {% endif %}
+                            <div>{{ message }}</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+    {% else %}
+    <!-- Fallback jika belum login -->
+    <div class="container mt-5">
+        <div class="alert alert-warning text-center">
+            <h4>Akses Ditolak</h4>
+            <p>Silakan login terlebih dahulu untuk mengakses halaman ini.</p>
+            <a href="/" class="btn btn-primary mt-2">Menuju Halaman Login</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Realtime Date Display
+        function updateDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateEl = document.getElementById('live-date');
+            if (dateEl) {
+                dateEl.textContent = new Date().toLocaleDateString('id-ID', options);
+            }
+        }
+        
+        // Sidebar collapse toggle for mobile
+        const sidebarCollapseBtn = document.getElementById('sidebarCollapse');
+        const sidebar = document.getElementById('sidebar');
+        if (sidebarCollapseBtn && sidebar) {
+            sidebarCollapseBtn.addEventListener('click', function(e) {
+                sidebar.classList.toggle('active');
+                e.stopPropagation();
+            });
+            
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(e) {
+                if (sidebar.classList.contains('active') && !sidebar.contains(e.target) && e.target !== sidebarCollapseBtn) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        }
+        
+        updateDate();
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

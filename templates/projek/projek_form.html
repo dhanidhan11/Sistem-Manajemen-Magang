@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Kelola Projek Magang{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+                <div class="card-header bg-white border-0 p-4 pt-5 text-center">
+                    <h2 class="fw-bold text-primary">Susun Rencana Projek</h2>
+                    <p class="text-muted">Jelaskan ide besar dan langkah-langkah projek magang Anda.</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Judul Projek</label>
+                            <input type="text" name="judul" class="form-control form-control-lg" value="{{ projek.judul }}" placeholder="Contoh: Sistem Manajemen Inventaris Berbasis Web" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Penjelasan Projek</label>
+                            <textarea name="penjelasan" class="form-control" rows="6" placeholder="Jelaskan latar belakang, tujuan, dan fitur utama projek Anda..." required>{{ projek.penjelasan }}</textarea>
+                            <small class="text-muted">Jelaskan dengan detail agar mentor mudah memahami.</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Alur / Langkah Kerja (Workflow)</label>
+                            <textarea name="alur_projek" class="form-control" rows="6" placeholder="Sebutkan langkah-langkah dari awal sampai akhir..." required>{{ projek.alur_projek }}</textarea>
+                            <small class="text-muted">Contoh: 1. Analisis, 2. Desain DB, 3. Coding, 4. Testing.</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label fw-bold">Link Repository (Opsional)</label>
+                                <input type="url" name="link_repo" class="form-control" value="{{ projek.link_repo }}" placeholder="https://github.com/user/repo">
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label fw-bold">Link Demo (Opsional)</label>
+                                <input type="url" name="link_demo" class="form-control" value="{{ projek.link_demo }}" placeholder="https://projek-saya.vercel.app">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">File Dokumen (Opsional)</label>
+                            <input type="file" name="file_dokumen" class="form-control">
+                            {% if projek.file_dokumen %}
+                            <small class="text-success d-block mt-1"><i class="fas fa-check-circle"></i> File sudah terunggah</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm">
+                                <i class="fas fa-save me-2"></i>Simpan Projek
+                            </button>
+                            <a href="{% url 'projek:projek_detail' %}" class="btn btn-light rounded-pill px-4 py-2">Batal</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

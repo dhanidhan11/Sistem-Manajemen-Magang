@@ -1,0 +1,333 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Kelola Mentor - Diskominfosatik{% endblock %}
+
+{% block content %}
+<style>
+    /* ===== GOV STYLE ===== */
+    :root {
+        --gov-blue: #003580;
+        --gov-blue-light: #005aad;
+        --gov-red: #cc2200;
+        --gov-gold: #c8a951;
+        --gov-bg: #f4f6f9;
+        --gov-border: #c9d0dc;
+    }
+
+    .gov-page-header {
+        background: linear-gradient(135deg, var(--gov-blue) 0%, var(--gov-blue-light) 100%);
+        border-radius: 0;
+        margin: -1rem -1rem 1.5rem -1rem;
+        padding: 20px 28px 18px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        border-bottom: 4px solid var(--gov-gold);
+    }
+    .gov-page-header .header-icon {
+        width: 52px; height: 52px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 22px; color: white; flex-shrink: 0;
+    }
+    .gov-page-header h2 { color: white; font-size: 20px; font-weight: 800; margin: 0; letter-spacing: .3px; }
+    .gov-page-header p { color: rgba(255,255,255,.7); font-size: 12.5px; margin: 3px 0 0; }
+
+    .gov-breadcrumb {
+        font-size: 12px;
+        color: #6b7280;
+        margin-bottom: 16px;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .gov-breadcrumb i { font-size: 10px; }
+
+    .gov-stats-bar {
+        background: white;
+        border: 1px solid var(--gov-border);
+        border-radius: 8px;
+        padding: 12px 20px;
+        display: flex;
+        gap: 28px;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+    .gov-stat-item { text-align: center; }
+    .gov-stat-item .num { font-size: 24px; font-weight: 900; color: var(--gov-blue); line-height: 1; }
+    .gov-stat-item .lbl { font-size: 10px; color: #6b7280; text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
+    .gov-stat-divider { width: 1px; height: 32px; background: var(--gov-border); }
+
+    .gov-table-wrapper {
+        background: white;
+        border: 1px solid var(--gov-border);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,53,128,0.06);
+    }
+    .gov-table-toolbar {
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--gov-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8f9fc;
+    }
+    .gov-table-toolbar .title {
+        font-size: 13px; font-weight: 700; color: var(--gov-blue);
+        display: flex; align-items: center; gap: 8px;
+    }
+    .gov-table-toolbar .title::before {
+        content: '';
+        display: block; width: 4px; height: 16px;
+        background: var(--gov-blue); border-radius: 2px;
+    }
+
+    table.gov-table { width: 100%; border-collapse: collapse; }
+    table.gov-table thead th {
+        background: var(--gov-blue);
+        color: white;
+        font-size: 11.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        padding: 11px 14px;
+        border: none;
+        white-space: nowrap;
+    }
+    table.gov-table tbody tr {
+        border-bottom: 1px solid #e9ecf0;
+        transition: background 0.15s;
+    }
+    table.gov-table tbody tr:hover { background: #f0f4ff; }
+    table.gov-table tbody tr:last-child { border-bottom: none; }
+    table.gov-table td {
+        padding: 11px 14px;
+        font-size: 13px;
+        color: #1f2937;
+        vertical-align: middle;
+    }
+
+    .mentor-avatar {
+        width: 38px; height: 38px;
+        border-radius: 6px;
+        background: var(--gov-blue);
+        color: white;
+        font-size: 16px; font-weight: 800;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+    .gov-badge {
+        font-size: 11px; font-weight: 600;
+        padding: 3px 9px; border-radius: 4px;
+        display: inline-block;
+    }
+    .gov-badge-blue   { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .gov-badge-green  { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .gov-badge-gray   { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
+    .gov-badge-orange { background: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
+
+    .peserta-chip {
+        display: inline-flex; align-items: center; gap: 5px;
+        background: #f0f4ff; border: 1px solid #c7d5f8;
+        border-radius: 4px; padding: 2px 7px;
+        font-size: 12px; color: #1e40af; font-weight: 600;
+        margin: 2px;
+    }
+    .peserta-chip .bidang-tag {
+        background: var(--gov-blue); color: white;
+        font-size: 10px; border-radius: 3px; padding: 1px 5px;
+        font-weight: 700;
+    }
+
+    .btn-gov-edit {
+        font-size: 12px; font-weight: 600;
+        padding: 5px 12px; border-radius: 4px;
+        border: 1px solid #d97706; color: #d97706; background: white;
+        text-decoration: none; display: inline-block;
+        transition: all 0.15s;
+    }
+    .btn-gov-edit:hover { background: #d97706; color: white; }
+
+    .btn-gov-delete {
+        font-size: 12px; font-weight: 600;
+        padding: 5px 12px; border-radius: 4px;
+        border: 1px solid var(--gov-red); color: var(--gov-red); background: white;
+        text-decoration: none; display: inline-block;
+        transition: all 0.15s;
+    }
+    .btn-gov-delete:hover { background: var(--gov-red); color: white; }
+
+    .btn-gov-primary {
+        background: var(--gov-blue);
+        color: white; border: none;
+        font-size: 13px; font-weight: 700;
+        padding: 8px 18px; border-radius: 6px;
+        text-decoration: none; display: inline-flex; align-items: center; gap: 7px;
+        transition: background 0.15s;
+    }
+    .btn-gov-primary:hover { background: var(--gov-blue-light); color: white; }
+
+    .gov-footer-bar {
+        background: #f8f9fc;
+        border-top: 1px solid var(--gov-border);
+        padding: 10px 18px;
+        font-size: 11.5px;
+        color: #6b7280;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .no-data-state {
+        text-align: center; padding: 50px 20px; color: #9ca3af;
+    }
+    .no-data-state i { font-size: 40px; margin-bottom: 12px; }
+</style>
+
+<!-- GOV HEADER -->
+<div class="gov-page-header">
+    <div class="header-icon"><i class="fas fa-user-tie"></i></div>
+    <div>
+        <h2>Kelola Data Mentor</h2>
+        <p>Sistem Manajemen Magang — Dinas Komunikasi, Informatika dan Statistik</p>
+    </div>
+    <div class="ms-auto">
+        <a href="{% url 'users:mentor_create' %}" class="btn-gov-primary">
+            <i class="fas fa-plus"></i> Tambah Mentor
+        </a>
+    </div>
+</div>
+
+<!-- Breadcrumb -->
+<div class="gov-breadcrumb">
+    <i class="fas fa-home"></i>
+    <a href="{% url 'users:dashboard_admin' %}" class="text-decoration-none text-muted">Beranda</a>
+    <i class="fas fa-chevron-right"></i>
+    <span class="text-primary fw-semibold">Kelola Mentor</span>
+</div>
+
+<!-- Stats Bar -->
+<div class="gov-stats-bar">
+    <div class="gov-stat-item">
+        <div class="num">{{ mentors|length }}</div>
+        <div class="lbl">Total Mentor</div>
+    </div>
+    <div class="gov-stat-divider"></div>
+    <div class="gov-stat-item">
+        <div class="num">
+            {% with total=0 %}
+            {% for m in mentors %}{% if m.peserta_bimbingan|length > 0 %}{% with total=total|add:1 %}{% endwith %}{% endif %}{% endfor %}
+            {{ mentors|length }}
+            {% endwith %}
+        </div>
+        <div class="lbl">Mentor Aktif</div>
+    </div>
+    <div class="gov-stat-divider"></div>
+    <div class="gov-stat-item text-start">
+        <div style="font-size:12px; color:#374151; font-weight:600;">Unit Kerja</div>
+        <div style="font-size:12px; color:#6b7280;">Diskominfosatik</div>
+    </div>
+    <div class="ms-auto">
+        <span style="font-size:11px; color:#9ca3af;"><i class="fas fa-clock me-1"></i>Data terkini dari sistem</span>
+    </div>
+</div>
+
+<!-- Table Card -->
+<div class="gov-table-wrapper">
+    <div class="gov-table-toolbar">
+        <div class="title">Daftar Mentor Terdaftar</div>
+        <div style="font-size:12px; color:#6b7280;">Total: <strong>{{ mentors|length }}</strong> data</div>
+    </div>
+
+    {% if mentors %}
+    <div style="overflow-x:auto;">
+        <table class="gov-table">
+            <thead>
+                <tr>
+                    <th style="width:40px; text-align:center;">No.</th>
+                    <th>Nama Lengkap</th>
+                    <th>Username</th>
+                    <th>Bidang</th>
+                    <th>Email</th>
+                    <th>Peserta Bimbingan</th>
+                    <th style="text-align:center; width:160px;">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in mentors %}
+                <tr>
+                    <td style="text-align:center; color:#9ca3af; font-weight:600;">{{ forloop.counter }}</td>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div class="mentor-avatar">{{ m.first_name|slice:":1"|upper|default:m.username|slice:":1"|upper }}</div>
+                            <div>
+                                <div style="font-weight:700; font-size:13.5px;">{{ m.get_full_name|default:m.username }}</div>
+                                <div style="font-size:11px; color:#9ca3af;">NIP/ID: {{ m.id }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="gov-badge gov-badge-gray"><i class="fas fa-user me-1"></i>{{ m.username }}</span>
+                    </td>
+                    <td>
+                        {% if m.mentor_profile.bidang %}
+                            <span class="gov-badge gov-badge-blue">{{ m.mentor_profile.get_bidang_display }}</span>
+                        {% else %}
+                            <span style="font-size:12px; color:#9ca3af; font-style:italic;">— belum diatur —</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-size:12.5px;">
+                        {% if m.email %}
+                            <i class="fas fa-envelope me-1 text-muted" style="font-size:11px;"></i>{{ m.email }}
+                        {% else %}
+                            <span style="color:#9ca3af;">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if m.peserta_bimbingan %}
+                            <div style="display:flex; flex-wrap:wrap; gap:4px;">
+                                {% for p in m.peserta_bimbingan %}
+                                <span class="peserta-chip">
+                                    <span class="bidang-tag">{{ p.bidang_penempatan|truncatechars:6 }}</span>
+                                    {{ p.user.get_full_name|truncatechars:18 }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <span style="font-size:12px; color:#9ca3af; font-style:italic;"><i class="fas fa-minus me-1"></i>Belum ada</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align:center;">
+                        <div style="display:flex; gap:6px; justify-content:center;">
+                            <a href="{% url 'users:mentor_edit' m.id %}" class="btn-gov-edit"><i class="fas fa-edit me-1"></i>Ubah</a>
+                            <a href="{% url 'users:mentor_delete' m.id %}" class="btn-gov-delete"><i class="fas fa-trash me-1"></i>Hapus</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="gov-footer-bar">
+        <span>Menampilkan {{ mentors|length }} data mentor terdaftar</span>
+        <span>Sistem Manajemen Magang &copy; Diskominfosatik</span>
+    </div>
+    {% else %}
+    <div class="no-data-state">
+        <i class="fas fa-user-slash d-block"></i>
+        <div style="font-size:14px; font-weight:600; color:#374151; margin-bottom:6px;">Belum Ada Data Mentor</div>
+        <div style="font-size:12.5px; color:#9ca3af; margin-bottom:16px;">Data mentor akan tampil setelah akun mentor ditambahkan oleh Admin.</div>
+        <a href="{% url 'users:mentor_create' %}" class="btn-gov-primary" style="border-radius:6px; font-size:13px;">
+            <i class="fas fa-plus"></i> Tambah Mentor Sekarang
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Back button -->
+<div class="mt-3">
+    <a href="{% url 'users:dashboard_admin' %}" style="font-size:13px; color:var(--gov-blue); text-decoration:none; font-weight:600;">
+        <i class="fas fa-arrow-left me-1"></i> Kembali ke Dashboard Admin
+    </a>
+</div>
+
+{% endblock %}

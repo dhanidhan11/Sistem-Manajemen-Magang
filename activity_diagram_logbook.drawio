@@ -1,0 +1,100 @@
+<mxfile host="app.diagrams.net" modified="2026-07-08T08:22:00.000Z" agent="draw.io" version="24.0.0" type="device">
+  <diagram id="activity-logbook" name="Activity Diagram - Siklus Logbook">
+    <mxGraphModel dx="1400" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="lane_peserta" value="PESERTA" style="swimlane;html=1;startSize=20;horizontal=true;childLayout=flowLayout;horizontalStack=false;resizeParent=false;resizeLast=false;collapsible=false;fillColor=#FFF3E0;strokeColor=#FF9800;" vertex="1" parent="1">
+          <mxGeometry x="80" y="80" width="300" height="1100" as="geometry" />
+        </mxCell>
+        <mxCell id="lane_sistem" value="SISTEM" style="swimlane;html=1;startSize=20;horizontal=true;childLayout=flowLayout;horizontalStack=false;resizeParent=false;resizeLast=false;collapsible=false;fillColor=#E3F2FD;strokeColor=#1565C0;" vertex="1" parent="1">
+          <mxGeometry x="380" y="80" width="300" height="1100" as="geometry" />
+        </mxCell>
+        <mxCell id="lane_mentor" value="MENTOR" style="swimlane;html=1;startSize=20;horizontal=true;childLayout=flowLayout;horizontalStack=false;resizeParent=false;resizeLast=false;collapsible=false;fillColor=#F3E5F5;strokeColor=#9C27B0;" vertex="1" parent="1">
+          <mxGeometry x="680" y="80" width="300" height="1100" as="geometry" />
+        </mxCell>
+        <mxCell id="node_start" value="" style="ellipse;html=1;fillColor=#000000;strokeColor=none;" vertex="1" parent="lane_peserta">
+          <mxGeometry x="140" y="40" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="act_login" value="Melakukan Login" style="rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#ffffff;strokeColor=#333333;" vertex="1" parent="lane_peserta">
+          <mxGeometry x="90" y="90" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="act_isi_log" value="Mengisi Form&#xa;Logbook Harian" style="rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#ffffff;strokeColor=#333333;" vertex="1" parent="lane_peserta">
+          <mxGeometry x="90" y="170" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="act_simpan_log" value="Menyimpan Logbook&#xa;dan Set Status&#xa;'Dikirim'" style="rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#ffffff;strokeColor=#333333;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="90" y="240" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="act_mentor_cek" value="Melihat Daftar&#xa;Logbook Bimbingan" style="rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#ffffff;strokeColor=#333333;" vertex="1" parent="lane_mentor">
+          <mxGeometry x="90" y="320" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="act_verif" value="Melakukan Verifikasi&#xa;Logbook" style="rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#ffffff;strokeColor=#333333;" vertex="1" parent="lane_mentor">
+          <mxGeometry x="90" y="410" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="dec_status" value="Disetujui?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;" vertex="1" parent="lane_mentor">
+          <mxGeometry x="115" y="500" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="act_reject" value="Status: Perlu Revisi&#xa;+ Catatan Mentor" style="rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#ffffff;strokeColor=#333333;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="90" y="510" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="act_edit" value="Melakukan Revisi&#xa;Logbook" style="rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#ffffff;strokeColor=#333333;" vertex="1" parent="lane_peserta">
+          <mxGeometry x="90" y="520" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="act_approve" value="Status: Diverifikasi" style="rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#ffffff;strokeColor=#333333;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="90" y="650" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="act_finish" value="Logbook Masuk ke&#xa;Rekap Laporan" style="rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#ffffff;strokeColor=#333333;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="90" y="740" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="node_end" value="" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ffffff;" vertex="1" parent="lane_sistem">
+          <mxGeometry x="135" y="840" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="edge1" value="" style="endArrow=block;endFill=1;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="node_start" target="act_login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge2" value="" style="endArrow=block;endFill=1;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="act_login" target="act_isi_log">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge3" value="" style="endArrow=block;endFill=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="act_isi_log" target="act_simpan_log">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge4" value="" style="endArrow=block;endFill=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="act_simpan_log" target="act_mentor_cek">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge5" value="" style="endArrow=block;endFill=1;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="act_mentor_cek" target="act_verif">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge6" value="" style="endArrow=block;endFill=1;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="act_verif" target="dec_status">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_reject" value="Tidak (Revisi)" style="endArrow=block;endFill=1;html=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="dec_status" target="act_reject">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_reject2" value="" style="endArrow=block;endFill=1;html=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="act_reject" target="act_edit">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_loop" value="" style="endArrow=block;endFill=1;html=1;exitX=0.5;exitY=0;entryX=0;entryY=0.5;" edge="1" parent="1" source="act_edit" target="act_isi_log">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="120" y="300" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="220" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_approve" value="Ya" style="endArrow=block;endFill=1;html=1;exitX=0.5;exitY=1;entryX=1;entryY=0.5;" edge="1" parent="1" source="dec_status" target="act_approve">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="835" y="750" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_finish" value="" style="endArrow=block;endFill=1;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="act_approve" target="act_finish">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_end" value="" style="endArrow=block;endFill=1;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="act_finish" target="node_end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}Tugas Saya - Manajemen Magang{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-clipboard-list me-2 text-primary"></i>
+            Daftar Tugas Saya
+        </h2>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 shadow-sm">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row g-4">
+        {% if tugas_saya %}
+            {% for tugas in tugas_saya %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm" style="border-radius: 15px; border-left: 5px solid {% if tugas.status == 'selesai' %}#198754{% elif tugas.status == 'dikirim' %}#0dcaf0{% elif tugas.status == 'proses' %}#0d6efd{% elif tugas.status == 'perlu_revisi' %}#dc3545{% else %}#ffc107{% endif %} !important;">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="badge {% if tugas.status == 'selesai' %}bg-success{% elif tugas.status == 'dikirim' %}bg-info text-dark{% elif tugas.status == 'proses' %}bg-primary{% elif tugas.status == 'perlu_revisi' %}bg-danger{% else %}bg-warning text-dark{% endif %} rounded-pill px-3">
+                                {{ tugas.get_status_display }}
+                            </span>
+                        <small class="text-muted"><i class="far fa-calendar-alt me-1"></i>
+                            {% if tugas.is_expired %}
+                                <span class="text-danger fw-bold"><i class="fas fa-exclamation-circle me-1"></i>Berakhir: {{ tugas.deadline|date:"d M Y" }}</span>
+                            {% else %}
+                                {{ tugas.deadline|date:"d M Y" }}
+                            {% endif %}
+                        </small>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">{{ tugas.judul }}</h5>
+                        <p class="text-muted small mb-3" style="min-height: 40px;">{{ tugas.deskripsi }}</p>
+                        
+                        {% if tugas.catatan_mentor %}
+                        <div class="bg-light p-2 rounded mb-3 border-start border-3 border-warning">
+                            <small class="fw-bold text-dark d-block">Catatan Mentor:</small>
+                            <small class="text-muted fst-italic">{{ tugas.catatan_mentor }}</small>
+                        </div>
+                        {% endif %}
+
+                        {% if tugas.status == 'selesai' %}
+                        <div class="alert alert-success py-2 mb-3 text-center">
+                            <small class="fw-bold">Nilai: {{ tugas.nilai }}/100</small>
+                        </div>
+                        {% endif %}
+
+                        <hr class="opacity-50">
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-user-tie text-primary me-2"></i>
+                                <small class="fw-bold text-dark">{{ tugas.mentor.get_full_name }}</small>
+                            </div>
+                            
+                            <div class="d-flex flex-wrap gap-1 justify-content-end">
+                                <button class="btn btn-sm btn-info text-white rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalDetail{{ tugas.id }}" title="Lihat Penjelasan">
+                                    <i class="fas fa-info-circle me-1"></i>Penjelasan
+                                </button>
+                                
+                                {% if tugas.is_expired or tugas.status == 'selesai' %}
+                                    <span class="badge bg-secondary text-white px-3 py-2 rounded-pill align-self-center">
+                                        <i class="fas fa-lock me-1"></i>{% if tugas.is_expired %}Waktu Habis{% else %}Selesai{% endif %}
+                                    </span>
+                                {% elif tugas.status == 'belum' %}
+                                <a href="{% url 'tugas:tugas_kerjakan' tugas.id %}" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm">
+                                    <i class="fas fa-play me-1"></i>Kerjakan
+                                </a>
+                                {% elif tugas.status == 'proses' or tugas.status == 'perlu_revisi' %}
+                                <button class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalUpload{{ tugas.id }}">
+                                    <i class="fas fa-check-double me-1"></i>Selesai
+                                </button>
+                                {% elif tugas.status == 'dikirim' %}
+                                <span class="text-info small fw-bold px-2">Terlampir / Menunggu Penilaian <i class="fas fa-file-alt"></i></span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Detail & Info Tugas -->
+                <div class="modal fade" id="modalDetail{{ tugas.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content text-start" style="border-radius: 15px;">
+                            <div class="modal-header border-0 bg-light" style="border-radius: 15px 15px 0 0;">
+                                <h5 class="modal-title fw-bold">Detail Projek: {{ tugas.judul }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <h6 class="fw-bold text-muted mb-1">Bentuk Projek (Output)</h6>
+                                        <div class="p-2 bg-light rounded border border-info">
+                                            <i class="fas fa-box-open text-info me-2"></i>{{ tugas.bentuk_projek|default:"-" }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mt-3 mt-md-0">
+                                        <h6 class="fw-bold text-muted mb-1">Batas Waktu (Deadline)</h6>
+                                        <div class="p-2 bg-light rounded border border-warning">
+                                            <i class="far fa-clock text-warning me-2"></i>{{ tugas.deadline|date:"l, d F Y" }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr class="opacity-25">
+                                <h6 class="fw-bold text-dark mb-2"><i class="fas fa-align-left me-2"></i>Keterangan dan Penjelasan Mentor:</h6>
+                                <div class="p-3 bg-white border rounded shadow-sm">
+                                    {{ tugas.deskripsi|linebreaks }}
+                                </div>
+                            </div>
+                            <div class="modal-footer border-0 p-3 pt-0 bg-white" style="border-radius: 0 0 15px 15px;">
+                                {% if tugas.status != 'selesai' %}
+                                <a href="{% url 'logbook:logbook_create' %}?tugas_id={{ tugas.id }}" class="btn btn-warning text-dark fw-bold rounded-pill mx-auto px-4 shadow-sm">
+                                    <i class="fas fa-book-open me-2"></i>Mulai Isi Logbook Harian untuk Projek Ini
+                                </a>
+                                {% endif %}
+                                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Tutup</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Upload Tugas -->
+                <div class="modal fade" id="modalUpload{{ tugas.id }}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content" style="border-radius: 15px;">
+                            <div class="modal-header border-0 bg-light" style="border-radius: 15px 15px 0 0;">
+                                <h5 class="modal-title fw-bold">Upload Hasil Tugas</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <form method="POST" action="{% url 'tugas:tugas_submit' tugas.id %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="modal-body p-4">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Pilih File Tugas (Opsional)</label>
+                                        <input type="file" name="file_tugas" class="form-control">
+                                        <small class="text-muted">PDF, DOCX, ZIP, atau Gambar.</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Atau Sertakan Link (Opsional)</label>
+                                        <input type="url" name="link_tugas" class="form-control" placeholder="https://github.com/username/repo">
+                                        <small class="text-muted">Bisa berupa link GitHub, Drive, Figma, dll.</small>
+                                    </div>
+                                    <p class="text-muted small">Harap isi minimal salah satu (file atau link).</p>
+                                </div>
+                                <div class="modal-footer border-0">
+                                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">Kirim Sekarang</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="card border-0 shadow-sm py-5 px-4" style="border-radius: 15px;">
+                    <div class="card-body text-center">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2666/2666505.png" style="width: 100px; opacity: 0.2;" class="mb-4">
+                        <h5 class="text-muted">Tidak Ada Tugas</h5>
+                        <p class="text-muted mb-0">Hore! Belum ada tugas yang diberikan oleh mentor Anda.</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="id">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Sistem Manajemen Magang</title>
+    <meta name="description" content="Login ke Sistem Manajemen Magang Diskominfosantik untuk mengelola kegiatan magang Anda.">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --yellow-main: #FFD600;
+            --yellow-dark: #F5C400;
+            --yellow-light: #FFF3B0;
+            --teal: #00BCD4;
+            --teal-dark: #0097A7;
+            --dark: #1A1A2E;
+            --dark-2: #16213E;
+            --text-dark: #1E1E2F;
+            --text-muted: #6B7280;
+            --white: #FFFFFF;
+            --radius: 20px;
+            --shadow: 0 25px 60px rgba(0,0,0,0.15);
+        }
+
+        html {
+            min-height: 100%;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #0d1b2a url("{% static 'bg_login.jpg' %}") center/cover no-repeat fixed;
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* Dark overlay di atas foto — fixed agar tidak ikut scroll */
+        .bg-blobs {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            background: linear-gradient(
+                135deg,
+                rgba(5, 15, 30, 0.78) 0%,
+                rgba(10, 40, 60, 0.70) 50%,
+                rgba(5, 15, 30, 0.82) 100%
+            );
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.12;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(0,188,212,0.6) 0%, transparent 70%);
+            top: -150px; left: -120px;
+            animation-delay: 0s;
+        }
+        .blob-2 {
+            width: 350px; height: 350px;
+            background: radial-gradient(circle, rgba(255,214,0,0.4) 0%, transparent 70%);
+            bottom: -100px; right: 25%;
+            animation-delay: 3s;
+        }
+        .blob-3 {
+            width: 250px; height: 250px;
+            background: radial-gradient(circle, rgba(0,188,212,0.5) 0%, transparent 70%);
+            top: 35%; right: -80px;
+            animation-delay: 5s;
+        }
+
+        /* Subtle dot pattern overlay */
+        .pattern-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.05); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spinSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 0.3; }
+            100% { transform: scale(0.9); opacity: 0.7; }
+        }
+
+        /* Main wrapper — centers on big screens, scrolls naturally on small/zoomed */
+        .login-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1100px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            gap: 60px;
+        }
+
+        /* Left section — hero text */
+        .hero-section {
+            flex: 1;
+            max-width: 460px;
+            animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .logo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(12px);
+            border: 1.5px solid rgba(255,255,255,0.25);
+            border-radius: 50px;
+            padding: 8px 18px 8px 8px;
+            margin-bottom: 32px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--dark);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--yellow-main);
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .logo-text {
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .hero-title {
+            font-size: clamp(32px, 4vw, 48px);
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+        }
+
+        .hero-title span {
+            position: relative;
+            display: inline-block;
+            color: var(--yellow-main);
+        }
+
+        .hero-title span::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: rgba(255,214,0,0.3);
+            border-radius: 4px;
+            z-index: -1;
+        }
+
+        .hero-desc {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.80);
+            line-height: 1.7;
+            margin-bottom: 36px;
+            max-width: 380px;
+        }
+
+        /* Feature pills */
+        .feature-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255,255,255,0.12);
+            border: 1.5px solid rgba(255,255,255,0.25);
+            border-radius: 50px;
+            padding: 7px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+            backdrop-filter: blur(8px);
+            transition: all 0.2s;
+        }
+
+        .pill i {
+            color: var(--yellow-main);
+            font-size: 14px;
+        }
+
+        .pill:hover {
+            background: rgba(255,255,255,0.22);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Illustration */
+        .illustration-wrap {
+            margin-top: 10px;
+            position: relative;
+        }
+
+        .illustration-wrap img {
+            width: 100%;
+            max-width: 380px;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.2));
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Floating badges on illustration */
+        .float-badge {
+            position: absolute;
+            background: var(--white);
+            border-radius: 14px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--dark);
+            animation: fadeInUp 1s ease both;
+        }
+
+        .float-badge .badge-icon {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .float-badge-1 {
+            top: 10px; left: -20px;
+            animation-delay: 0.5s;
+        }
+
+        .float-badge-2 {
+            bottom: 30px; right: -10px;
+            animation-delay: 0.9s;
+        }
+
+        /* Right section — login card */
+        .card-section {
+            flex-shrink: 0;
+            width: 100%;
+            max-width: 440px;
+            animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+        }
+
+        .login-card {
+            background: var(--white);
+            border-radius: 28px;
+            padding: 42px 44px;
+            box-shadow: var(--shadow), 0 0 0 1px rgba(255,255,255,0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--yellow-main), var(--teal), var(--yellow-main));
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .card-header-text {
+            margin-bottom: 32px;
+        }
+
+        .card-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--teal-dark);
+            margin-bottom: 10px;
+        }
+
+        .card-eyebrow::before {
+            content: '';
+            width: 20px;
+            height: 2px;
+            background: var(--teal);
+            border-radius: 2px;
+        }
+
+        .card-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-dark);
+            line-height: 1.2;
+        }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* Alert messages */
+        .alert-msg {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .alert-error {
+            background: #FFF1F0;
+            color: #CF1322;
+            border: 1px solid #FFCCC7;
+        }
+
+        .alert-success {
+            background: #F6FFED;
+            color: #389E0D;
+            border: 1px solid #B7EB8F;
+        }
+
+        .alert-warning {
+            background: #FFFBE6;
+            color: #D48806;
+            border: 1px solid #FFE58F;
+        }
+
+        /* Form styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .form-label i {
+            color: var(--teal-dark);
+            font-size: 14px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap input {
+            width: 100%;
+            height: 52px;
+            padding: 0 44px 0 16px;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 15px;
+            color: var(--text-dark);
+            outline: none;
+            background: #FAFAFA;
+            transition: all 0.25s ease;
+        }
+
+        .input-wrap input:focus {
+            border-color: var(--yellow-dark);
+            background: #FFFEF7;
+            box-shadow: 0 0 0 4px rgba(255, 214, 0, 0.15);
+        }
+
+        .input-wrap input:focus + .input-icon {
+            color: var(--teal-dark);
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9CA3AF;
+            font-size: 18px;
+            transition: color 0.2s;
+            cursor: pointer;
+            background: none;
+            border: none;
+            outline: none;
+            line-height: 1;
+        }
+
+        /* Submit button */
+        .btn-login {
+            width: 100%;
+            height: 54px;
+            background: linear-gradient(135deg, #1A1A2E 0%, #16213E 100%);
+            color: var(--yellow-main);
+            border: none;
+            border-radius: 12px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            margin-top: 28px;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #FFD600 0%, #FFC107 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn-login:hover::before {
+            opacity: 1;
+        }
+
+        .btn-login:hover {
+            color: var(--dark);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(255,200,0,0.4);
+        }
+
+        .btn-login span, .btn-login i {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 24px 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #E5E7EB;
+        }
+
+        .divider span {
+            font-size: 12px;
+            color: #9CA3AF;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .register-link {
+            text-align: center;
+        }
+
+        .register-link p {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .register-link a {
+            color: var(--teal-dark);
+            font-weight: 700;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .register-link a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--teal);
+            border-radius: 2px;
+            transform: scaleX(0);
+            transition: transform 0.25s;
+        }
+
+        .register-link a:hover::after {
+            transform: scaleX(1);
+        }
+
+        /* Demo info */
+        .demo-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #F9FAFB;
+            border: 1px dashed #D1D5DB;
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-top: 16px;
+        }
+
+        .demo-info i {
+            color: var(--yellow-dark);
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .demo-info p {
+            font-size: 12px;
+            color: #6B7280;
+        }
+
+        .demo-info strong {
+            color: var(--dark);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .login-wrapper {
+                flex-direction: column;
+                padding: 40px 20px;
+                gap: 32px;
+                min-height: auto;
+            }
+
+            .hero-section {
+                text-align: center;
+                max-width: 100%;
+            }
+
+            .hero-desc {
+                margin: 0 auto 28px;
+            }
+
+            .feature-pills {
+                justify-content: center;
+            }
+
+            .illustration-wrap {
+                display: none;
+            }
+
+            .card-section {
+                max-width: 100%;
+            }
+
+            .login-card {
+                padding: 32px 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Background decorations -->
+<div class="bg-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+</div>
+<div class="pattern-overlay"></div>
+
+<div class="login-wrapper">
+    <!-- Left Hero -->
+    <div class="hero-section">
+        <div class="logo-badge">
+            <div class="logo-icon">M</div>
+            <span class="logo-text">Diskominfosantik</span>
+        </div>
+
+        <h1 class="hero-title">
+            Sistem Manajemen<br>
+            <span>Magang</span> Digital
+        </h1>
+        <p class="hero-desc">
+            Platform terpadu untuk mengelola seluruh kegiatan magang — dari absensi, logbook, monitoring tugas, hingga penilaian peserta.
+        </p>
+
+        <div class="feature-pills">
+            <div class="pill"><i class="bi bi-check2-circle"></i> Absensi Digital</div>
+            <div class="pill"><i class="bi bi-journal-text"></i> Logbook Harian</div>
+            <div class="pill"><i class="bi bi-graph-up-arrow"></i> Monitoring Tugas</div>
+            <div class="pill"><i class="bi bi-award"></i> Penilaian Peserta</div>
+        </div>
+
+        <div class="illustration-wrap">
+            <img src="{% static 'login_illustration.png' %}" alt="Ilustrasi sistem magang">
+        </div>
+    </div>
+
+    <!-- Right Card -->
+    <div class="card-section">
+        <div class="login-card">
+            <div class="card-header-text">
+                <div class="card-eyebrow">Selamat Datang</div>
+                <h2 class="card-title">Masuk ke Akun Anda</h2>
+                <p class="card-subtitle">Gunakan kredensial yang diberikan admin untuk login</p>
+            </div>
+
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert-msg {% if message.tags == 'error' %}alert-error{% elif message.tags == 'success' %}alert-success{% else %}alert-warning{% endif %}">
+                    <i class="bi {% if message.tags == 'error' %}bi-x-circle-fill{% elif message.tags == 'success' %}bi-check-circle-fill{% else %}bi-exclamation-triangle-fill{% endif %}"></i>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Form -->
+            <form method="post" id="loginForm">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label class="form-label" for="id_username">
+                        <i class="bi bi-person-fill"></i> Username
+                    </label>
+                    <div class="input-wrap">
+                        <input
+                            type="text"
+                            id="id_username"
+                            name="username"
+                            placeholder="Masukkan username Anda"
+                            autocomplete="username"
+                            required
+                        >
+                        <span class="input-icon">
+                            <i class="bi bi-person"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="id_password">
+                        <i class="bi bi-lock-fill"></i> Password
+                    </label>
+                    <div class="input-wrap">
+                        <input
+                            type="password"
+                            id="id_password"
+                            name="password"
+                            placeholder="Masukkan password Anda"
+                            autocomplete="current-password"
+                            required
+                        >
+                        <button type="button" class="input-icon" id="togglePassword" aria-label="Tampilkan password">
+                            <i class="bi bi-eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-login" id="loginBtn">
+                    <span>Masuk Sekarang</span>
+                    <i class="bi bi-arrow-right-circle-fill"></i>
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>atau</span>
+            </div>
+
+            <div class="register-link">
+                <p>Belum punya akun? <a href="{% url 'users:register' %}">Daftar sebagai Peserta</a></p>
+            </div>
+
+            <div class="demo-info">
+                <i class="bi bi-info-circle-fill"></i>
+                <p>Demo login: <strong>admin</strong> / <strong>admin123</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Toggle password visibility
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('id_password');
+    const eyeIcon = document.getElementById('eyeIcon');
+
+    togglePassword.addEventListener('click', () => {
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        eyeIcon.className = isPassword ? 'bi bi-eye-slash' : 'bi bi-eye';
+    });
+
+    // Loading state on submit
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+
+    loginForm.addEventListener('submit', () => {
+        loginBtn.innerHTML = `<span>Memproses...</span> <i class="bi bi-arrow-repeat" style="animation: spinSlow 0.8s linear infinite;"></i>`;
+        loginBtn.style.opacity = '0.85';
+        loginBtn.disabled = true;
+    });
+
+    // Add focus animation to inputs
+    document.querySelectorAll('.input-wrap input').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.closest('.form-group').querySelector('.form-label').style.color = '#0097A7';
+        });
+        input.addEventListener('blur', function() {
+            this.closest('.form-group').querySelector('.form-label').style.color = '';
+        });
+    });
+</script>
+
+</body>
+</html>

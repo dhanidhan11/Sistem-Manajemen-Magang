@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+local_settings.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Media & Static
+/media/
+/static/
+
+# Drawio (optional, tapi biasanya tidak masuk repo atau masuk repo jika itu dokumentasi)
+# *.drawio - kita biarkan karena ini aset desain penting yang sudah dibuat
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db

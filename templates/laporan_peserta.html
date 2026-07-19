@@ -1,0 +1,573 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Laporan Magang - {{ peserta.user.get_full_name }}{% endblock %}
+{% block page_title %}Laporan Magang{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ===== SCREEN STYLES ===== */
+.report-header-banner {
+    background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+    border-radius: 20px;
+    padding: 32px;
+    color: white;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+}
+
+.report-header-banner::after {
+    content: '';
+    position: absolute;
+    right: -40px; top: -40px;
+    width: 180px; height: 180px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 50%;
+}
+
+.section-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid rgba(99,102,241,0.08);
+    box-shadow: 0 4px 20px rgba(99,102,241,0.04);
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+
+.section-card-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid #f1f0ff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #1e1b4b;
+}
+
+.section-card-body { padding: 24px; }
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+}
+
+.info-cell label {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.info-cell p {
+    font-weight: 700;
+    color: #1e1b4b;
+    font-size: 0.92rem;
+    margin: 0;
+}
+
+.stat-mini {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+}
+
+.stat-mini .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #6366f1;
+    line-height: 1;
+}
+
+.stat-mini .lbl {
+    font-size: 0.78rem;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+.score-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.score-row:last-child { margin-bottom: 0; }
+
+.score-label {
+    width: 150px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+    flex-shrink: 0;
+}
+
+.score-bar-wrapper {
+    flex: 1;
+    height: 10px;
+    background: #e5e7eb;
+    border-radius: 100px;
+    overflow: hidden;
+}
+
+.score-bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: linear-gradient(90deg, #6366f1, #7c3aed);
+    transition: width 0.6s ease;
+}
+
+.score-val {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #6366f1;
+    width: 36px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.total-score-box {
+    background: linear-gradient(135deg, #6366f1, #7c3aed);
+    color: white;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.total-score-box .big { font-size: 3rem; font-weight: 900; line-height: 1; }
+.total-score-box .lbl { font-size: 0.85rem; opacity: 0.85; margin-top: 4px; }
+
+.status-badge-sm {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.btn-print-pdf {
+    background: linear-gradient(135deg, #6366f1, #7c3aed);
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 16px rgba(99,102,241,0.25);
+}
+
+.btn-print-pdf:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(99,102,241,0.35);
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+    /* Hide sidebar, header, and non-print elements */
+    .sidebar, .main-wrapper .top-header, .no-print,
+    .app-container > .sidebar { display: none !important; }
+
+    .main-wrapper { margin-left: 0 !important; }
+    .content-body { padding: 0 !important; }
+
+    body {
+        background: white !important;
+        font-family: 'Times New Roman', serif !important;
+        font-size: 11pt !important;
+        color: #000 !important;
+    }
+
+    /* Print header */
+    .print-only-header {
+        display: block !important;
+        text-align: center;
+        border-bottom: 3px double #000;
+        padding-bottom: 16px;
+        margin-bottom: 24px;
+    }
+
+    .print-only-header h2 {
+        font-size: 16pt;
+        font-weight: bold;
+        margin: 0 0 4px;
+    }
+
+    .print-only-header p {
+        font-size: 10pt;
+        color: #555;
+        margin: 2px 0;
+    }
+
+    .report-header-banner { display: none !important; }
+
+    .section-card {
+        border: 1px solid #aaa !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        margin-bottom: 16px !important;
+        page-break-inside: avoid;
+    }
+
+    .section-card-header {
+        background: #e8e8e8 !important;
+        color: #000 !important;
+        padding: 8px 14px !important;
+        font-size: 10pt !important;
+    }
+
+    .section-card-body { padding: 12px 14px !important; }
+
+    .info-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+
+    .info-cell label { font-size: 8pt !important; }
+    .info-cell p { font-size: 10pt !important; }
+
+    .stat-mini {
+        border: 1px solid #ccc !important;
+        border-radius: 4px !important;
+        padding: 8px !important;
+        background: #f5f5f5 !important;
+    }
+
+    .stat-mini .num { font-size: 18pt !important; color: #000 !important; }
+
+    .score-bar-wrapper { background: #ddd !important; }
+    .score-bar-fill { background: #555 !important; }
+    .score-val { color: #000 !important; }
+
+    .total-score-box {
+        background: #e8e8e8 !important;
+        color: #000 !important;
+        border: 2px solid #000 !important;
+        border-radius: 4px !important;
+    }
+
+    .total-score-box .big { font-size: 28pt !important; color: #000 !important; }
+
+    table { border-collapse: collapse !important; width: 100%; font-size: 9pt; }
+    th { background: #333 !important; color: #fff !important; padding: 5px 8px !important; }
+    td { padding: 4px 8px !important; border: 1px solid #ccc !important; }
+
+    .no-print { display: none !important; }
+
+    .print-footer {
+        display: block !important;
+        text-align: right;
+        font-size: 9pt;
+        color: #777;
+        border-top: 1px solid #ccc;
+        margin-top: 24px;
+        padding-top: 8px;
+    }
+}
+
+/* Hidden on screen, shown on print */
+.print-only-header, .print-footer { display: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Print-only header (invisible on screen) -->
+<div class="print-only-header">
+    <h2>LAPORAN MAGANG — DISKOMINFOSANTIK</h2>
+    <p>{{ peserta.user.get_full_name }} &nbsp;|&nbsp; {{ peserta.nim }} &nbsp;|&nbsp; {{ peserta.institusi }}</p>
+    <p>Dicetak: {{ today|date:"d F Y" }}</p>
+</div>
+
+<!-- Screen banner -->
+<div class="report-header-banner no-print">
+    <div class="d-flex align-items-center gap-4 position-relative" style="z-index:1;">
+        <div>
+            <div style="opacity:0.8; font-size:0.8rem; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">
+                Laporan Magang Peserta
+            </div>
+            <h2 style="font-size:1.6rem; font-weight:800; margin:0 0 4px;">
+                {{ peserta.user.get_full_name }}
+            </h2>
+            <div style="opacity:0.85; font-size:0.9rem;">
+                {{ peserta.nim }} &nbsp;·&nbsp; {{ peserta.institusi }} &nbsp;·&nbsp; {{ peserta.bidang_penempatan }}
+            </div>
+        </div>
+        <div class="ms-auto text-end d-none d-md-block">
+            <div style="opacity:0.7; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.5px;">Tanggal Cetak</div>
+            <div style="font-weight:700;">{{ today|date:"d F Y" }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- 1. Data Diri -->
+<div class="section-card">
+    <div class="section-card-header">
+        <i class="fas fa-user" style="color:#6366f1;"></i> Data Diri Peserta
+    </div>
+    <div class="section-card-body">
+        <div class="info-grid">
+            <div class="info-cell">
+                <label>Nama Lengkap</label>
+                <p>{{ peserta.user.get_full_name }}</p>
+            </div>
+            <div class="info-cell">
+                <label>NIM / Identitas</label>
+                <p>{{ peserta.nim }}</p>
+            </div>
+            <div class="info-cell">
+                <label>Institusi</label>
+                <p>{{ peserta.institusi }}</p>
+            </div>
+            <div class="info-cell">
+                <label>Jurusan</label>
+                <p>{{ peserta.jurusan }}</p>
+            </div>
+            <div class="info-cell">
+                <label>Bidang Penempatan</label>
+                <p>{{ peserta.bidang_penempatan }}</p>
+            </div>
+            <div class="info-cell">
+                <label>Mentor Pembimbing</label>
+                <p>{{ peserta.mentor.get_full_name|default:'-' }}</p>
+            </div>
+            <div class="info-cell">
+                <label>Tanggal Mulai</label>
+                <p>{{ peserta.tanggal_mulai|date:"d/m/Y" }}</p>
+            </div>
+            <div class="info-cell">
+                <label>Tanggal Selesai</label>
+                <p>{{ peserta.tanggal_selesai|date:"d/m/Y" }}</p>
+            </div>
+            <div class="info-cell">
+                <label>Status</label>
+                <p>{{ peserta.get_status_display }}</p>
+            </div>
+            <div class="info-cell">
+                <label>Hari Magang Ke-</label>
+                <p>{{ hari_ke }} hari</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Ringkasan Statistik -->
+<div class="section-card">
+    <div class="section-card-header">
+        <i class="fas fa-chart-bar" style="color:#10b981;"></i> Ringkasan Statistik
+    </div>
+    <div class="section-card-body">
+        <div class="row g-3">
+            <div class="col-4">
+                <div class="stat-mini">
+                    <div class="num">{{ total_absensi }}</div>
+                    <div class="lbl">Total Absensi</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-mini">
+                    <div class="num">{{ total_logbook }}</div>
+                    <div class="lbl">Total Logbook</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-mini">
+                    <div class="num">
+                        {% if penilaian %}{{ penilaian.total_nilai|floatformat:1 }}{% else %}-{% endif %}
+                    </div>
+                    <div class="lbl">Nilai Akhir</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rekap status absensi -->
+        {% if status_absensi %}
+        <hr style="border-color:#f1f0ff; margin: 20px 0;">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <span style="font-size:0.8rem; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:0.5px;">Rekap Status Absensi:</span>
+            {% for item in status_absensi %}
+            <span class="status-badge-sm {% if item.status == 'hadir' %}bg-success text-white{% elif item.status == 'sakit' %}bg-warning text-dark{% elif item.status == 'izin' %}bg-info text-white{% else %}bg-danger text-white{% endif %}">
+                {{ item.get_status_display }}: {{ item.total }}
+            </span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 3. Detail Penilaian -->
+<div class="section-card">
+    <div class="section-card-header">
+        <i class="fas fa-star" style="color:#f59e0b;"></i> Detail Penilaian Mentor
+    </div>
+    <div class="section-card-body">
+        {% if penilaian %}
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="score-row">
+                    <div class="score-label">Kedisiplinan</div>
+                    <div class="score-bar-wrapper"><div class="score-bar-fill" style="width:{{ penilaian.kedisiplinan }}%;"></div></div>
+                    <div class="score-val">{{ penilaian.kedisiplinan }}</div>
+                </div>
+                <div class="score-row">
+                    <div class="score-label">Kreativitas</div>
+                    <div class="score-bar-wrapper"><div class="score-bar-fill" style="width:{{ penilaian.kreativitas }}%;"></div></div>
+                    <div class="score-val">{{ penilaian.kreativitas }}</div>
+                </div>
+                <div class="score-row">
+                    <div class="score-label">Komunikasi</div>
+                    <div class="score-bar-wrapper"><div class="score-bar-fill" style="width:{{ penilaian.komunikasi }}%;"></div></div>
+                    <div class="score-val">{{ penilaian.komunikasi }}</div>
+                </div>
+                <div class="score-row">
+                    <div class="score-label">Kemampuan Teknis</div>
+                    <div class="score-bar-wrapper"><div class="score-bar-fill" style="width:{{ penilaian.teknis }}%;"></div></div>
+                    <div class="score-val">{{ penilaian.teknis }}</div>
+                </div>
+                <div class="score-row">
+                    <div class="score-label">Presensi</div>
+                    <div class="score-bar-wrapper"><div class="score-bar-fill" style="width:{{ penilaian.presensi }}%;"></div></div>
+                    <div class="score-val">{{ penilaian.presensi }}</div>
+                </div>
+                <div class="score-row">
+                    <div class="score-label">Presentasi</div>
+                    <div class="score-bar-wrapper"><div class="score-bar-fill" style="width:{{ penilaian.presentasi }}%;"></div></div>
+                    <div class="score-val">{{ penilaian.presentasi }}</div>
+                </div>
+                <div class="score-row">
+                    <div class="score-label">Sikap</div>
+                    <div class="score-bar-wrapper"><div class="score-bar-fill" style="width:{{ penilaian.sikap }}%;"></div></div>
+                    <div class="score-val">{{ penilaian.sikap }}</div>
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex align-items-center">
+                <div class="total-score-box w-100">
+                    <div class="lbl">Nilai Akhir</div>
+                    <div class="big">{{ penilaian.total_nilai|floatformat:2 }}</div>
+                    <div class="lbl" style="margin-top:8px;">
+                        {% if penilaian.total_nilai >= 85 %}⭐ Sangat Baik
+                        {% elif penilaian.total_nilai >= 70 %}✅ Baik
+                        {% elif penilaian.total_nilai >= 55 %}📘 Cukup
+                        {% else %}⚠️ Perlu Peningkatan{% endif %}
+                    </div>
+                    {% if penilaian.catatan %}
+                    <hr style="border-color:rgba(255,255,255,0.3); margin:12px 0;">
+                    <p style="font-size:0.8rem; opacity:0.85; margin:0;"><em>"{{ penilaian.catatan }}"</em></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-muted">
+            <i class="fas fa-hourglass-half fa-2x mb-2 d-block" style="color:#d1d5db;"></i>
+            <p class="mb-0">Belum ada penilaian dari mentor</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 4. Riwayat Absensi -->
+<div class="section-card">
+    <div class="section-card-header">
+        <i class="fas fa-calendar-alt" style="color:#3b82f6;"></i> Riwayat Absensi (30 Terakhir)
+    </div>
+    <div class="section-card-body" style="padding:0;">
+        {% if riwayat_absensi %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" style="font-size:0.875rem;">
+                <thead style="background:#f9fafb;">
+                    <tr>
+                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">No</th>
+                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">Tanggal</th>
+                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">Check-in</th>
+                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">Check-out</th>
+                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for absen in riwayat_absensi %}
+                    <tr>
+                        <td style="padding:10px 20px;">{{ forloop.counter }}</td>
+                        <td style="padding:10px 20px; font-weight:600;">{{ absen.tanggal|date:"d M Y" }}</td>
+                        <td style="padding:10px 20px;">{{ absen.check_in|time:"H:i"|default:'-' }}</td>
+                        <td style="padding:10px 20px;">{{ absen.check_out|time:"H:i"|default:'-' }}</td>
+                        <td style="padding:10px 20px;">
+                            <span class="status-badge-sm {% if absen.status == 'hadir' %}bg-success text-white{% elif absen.status == 'sakit' %}bg-warning text-dark{% elif absen.status == 'izin' %}bg-info text-white{% else %}bg-danger text-white{% endif %}">
+                                {{ absen.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-muted"><p>Belum ada riwayat absensi.</p></div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 5. Logbook Terakhir -->
+<div class="section-card">
+    <div class="section-card-header">
+        <i class="fas fa-book-open" style="color:#10b981;"></i> Logbook Terakhir (10 Entri)
+    </div>
+    <div class="section-card-body" style="padding:0;">
+        {% if logbooks %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" style="font-size:0.875rem;">
+                <thead style="background:#f9fafb;">
+                    <tr>
+                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">No</th>
+                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">Tanggal</th>
+                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">Kegiatan</th>
+                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logbooks %}
+                    <tr>
+                        <td style="padding:10px 20px;">{{ forloop.counter }}</td>
+                        <td style="padding:10px 20px; font-weight:600; white-space:nowrap;">{{ log.tanggal|date:"d M Y" }}</td>
+                        <td style="padding:10px 20px; max-width:400px;">{{ log.kegiatan|truncatechars:150 }}</td>
+                        <td style="padding:10px 20px;">
+                            <span class="status-badge-sm {% if log.status == 'diverifikasi' %}bg-success text-white{% elif log.status == 'dikirim' %}bg-warning text-dark{% else %}bg-secondary text-white{% endif %}">
+                                {{ log.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-muted"><p>Belum ada logbook.</p></div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Tombol Aksi -->
+<div class="d-flex gap-3 pb-4 no-print">
+    <a href="{% url 'users:dashboard_peserta' %}" class="btn btn-light fw-600 border" style="border-radius:10px; padding:10px 20px;">
+        <i class="fas fa-arrow-left me-2"></i>Kembali
+    </a>
+    <button onclick="window.print()" class="btn-print-pdf">
+        <i class="fas fa-file-pdf"></i> Cetak PDF
+    </button>
+</div>
+
+<!-- Print footer -->
+<div class="print-footer">
+    Dicetak dari Sistem Manajemen Magang — Diskominfosantik &nbsp;|&nbsp; {{ today|date:"d F Y" }}
+</div>
+{% endblock %}

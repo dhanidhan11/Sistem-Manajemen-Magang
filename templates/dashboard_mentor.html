@@ -1,0 +1,378 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Dashboard Mentor{% endblock %}
+
+{% block content %}
+<style>
+    /* ===== STAT CARDS ===== */
+    .stat-card {
+        border-radius: 20px;
+        border: none;
+        color: white;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+    }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.15) !important; }
+    .stat-card::after {
+        content: ''; position: absolute; top: -30px; right: -30px;
+        width: 100px; height: 100px; border-radius: 50%;
+        background: rgba(255,255,255,0.08);
+    }
+    .bg-grad-indigo { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); }
+    .bg-grad-teal   { background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%); }
+    .bg-grad-amber  { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    .bg-grad-rose   { background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%); }
+
+    /* ===== PESERTA CARDS ===== */
+    .peserta-card {
+        border-radius: 18px;
+        border: 1.5px solid #e5e7eb;
+        background: #fff;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .peserta-card::before {
+        content: '';
+        position: absolute; top: 0; left: 0;
+        width: 5px; height: 100%;
+        background: linear-gradient(180deg, #6366f1, #818cf8);
+        border-radius: 18px 0 0 18px;
+    }
+    .peserta-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 35px rgba(99, 102, 241, 0.15);
+        border-color: #a5b4fc;
+    }
+    .peserta-avatar {
+        width: 52px; height: 52px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1, #818cf8);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; font-weight: 700; color: white;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+    }
+    .peserta-card .click-hint {
+        position: absolute; bottom: 12px; right: 14px;
+        font-size: 11px; color: #9ca3af;
+        display: flex; align-items: center; gap: 4px;
+    }
+    .mini-badge { font-size: 11px; padding: 3px 9px; border-radius: 50px; font-weight: 600; }
+
+    /* ===== MODAL ===== */
+    .modal-detail .modal-content {
+        border-radius: 22px;
+        border: none;
+        overflow: hidden;
+    }
+    .modal-header-grad {
+        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+        color: white;
+        padding: 1.5rem 1.75rem;
+    }
+    .mini-stat-card {
+        border-radius: 14px;
+        padding: 14px 16px;
+        text-align: center;
+        border: 1.5px solid #e5e7eb;
+        flex: 1;
+    }
+    .mini-stat-card .num { font-size: 22px; font-weight: 800; color: #1e1b4b; }
+    .mini-stat-card .lbl { font-size: 11px; color: #9ca3af; text-transform: uppercase; font-weight: 600; letter-spacing: .4px; }
+
+    .tugas-item {
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        background: #fafafa;
+        padding: 12px 14px;
+        margin-bottom: 8px;
+    }
+    .tugas-item:last-child { margin-bottom: 0; }
+
+    .log-item {
+        border-left: 3px solid #6366f1;
+        padding: 8px 12px;
+        background: #f5f3ff;
+        border-radius: 0 10px 10px 0;
+        margin-bottom: 8px;
+        font-size: 13px;
+    }
+    .log-item:last-child { margin-bottom: 0; }
+
+    .profile-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 13.5px; }
+    .profile-row i { width: 18px; color: #6366f1; }
+
+    /* ===== SECTION HEADERS ===== */
+    .section-title {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        color: #9ca3af;
+        margin-bottom: 12px;
+    }
+</style>
+
+<div>
+    {% if pendaftaran_pending > 0 %}
+    <div class="alert border-0 shadow-sm d-flex align-items-center mb-4 py-3 px-4" style="border-radius: 14px; background: rgba(99,102,241,0.08); border-left: 5px solid #6366f1 !important;">
+        <div class="me-3 fs-3 text-primary"><i class="fas fa-user-plus"></i></div>
+        <div class="flex-grow-1">
+            <h6 class="fw-bold mb-1 text-primary">Permohonan Registrasi Baru</h6>
+            <p class="mb-0 text-dark small">Ada <strong>{{ pendaftaran_pending }}</strong> peserta baru yang menunggu verifikasi Anda.</p>
+        </div>
+        <a href="{% url 'users:mentor_verification' %}" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm">Verifikasi Sekarang</a>
+    </div>
+    {% endif %}
+
+    <!-- Stat Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card stat-card bg-grad-indigo shadow-sm p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="small fw-semibold" style="opacity:.7; font-size:11px; text-transform:uppercase; letter-spacing:.5px;">Anak Bimbingan</div>
+                        <div class="fw-bold mt-1" style="font-size: 28px;">{{ total_bimbingan }}</div>
+                    </div>
+                    <i class="fas fa-users fa-2x" style="opacity:.3;"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{% url 'logbook:logbook_mentor' %}" class="text-decoration-none">
+            <div class="card stat-card bg-grad-teal shadow-sm p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="small fw-semibold" style="opacity:.7; font-size:11px; text-transform:uppercase; letter-spacing:.5px;">Logbook Pending</div>
+                        <div class="fw-bold mt-1" style="font-size: 28px;">{{ logbook_pending }}</div>
+                    </div>
+                    <i class="fas fa-book-open fa-2x" style="opacity:.3;"></i>
+                </div>
+            </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card stat-card bg-grad-amber shadow-sm p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="small fw-semibold" style="opacity:.7; font-size:11px; text-transform:uppercase; letter-spacing:.5px;">Sudah Dinilai</div>
+                        <div class="fw-bold mt-1" style="font-size: 28px;">{{ total_sudah_dinilai }} <span style="font-size:14px; opacity:.7;">/ {{ total_bimbingan }}</span></div>
+                    </div>
+                    <i class="fas fa-star fa-2x" style="opacity:.3;"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{% url 'tugas:tugas_list_mentor' %}" class="text-decoration-none">
+            <div class="card stat-card bg-grad-rose shadow-sm p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="small fw-semibold" style="opacity:.7; font-size:11px; text-transform:uppercase; letter-spacing:.5px;">Manajemen Tugas</div>
+                        <div class="fw-bold mt-1" style="font-size: 18px; line-height:1.4;">Lihat<br>Semua</div>
+                    </div>
+                    <i class="fas fa-tasks fa-2x" style="opacity:.3;"></i>
+                </div>
+            </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Peserta Section -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h5 class="fw-bold mb-0">Peserta Bimbingan Saya</h5>
+            <small class="text-muted">Klik kartu peserta untuk melihat detail lengkap</small>
+        </div>
+        <a href="{% url 'logbook:logbook_mentor' %}" class="btn btn-sm btn-outline-primary rounded-pill px-4">
+            <i class="fas fa-book-open me-1"></i> Semua Logbook
+        </a>
+    </div>
+
+    {% if peserta_bimbingan %}
+    <div class="row g-3">
+        {% for p in peserta_bimbingan %}
+        <div class="col-md-6 col-xl-4">
+            <div class="peserta-card p-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalPeserta{{ p.id }}">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="peserta-avatar">{{ p.user.first_name|slice:":1"|upper }}</div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="fw-bold text-dark mb-0" style="font-size:15px;">{{ p.user.get_full_name }}</div>
+                        <div class="text-muted small mb-2">NIM: {{ p.nim }}</div>
+                        <div class="d-flex flex-wrap gap-1 mb-2">
+                            <span class="mini-badge bg-primary bg-opacity-10 text-primary">{{ p.institusi|truncatechars:18 }}</span>
+                            <span class="mini-badge {% if p.status == 'aktif' %}bg-success bg-opacity-10 text-success{% else %}bg-secondary bg-opacity-10 text-secondary{% endif %}">
+                                {{ p.status|capfirst }}
+                            </span>
+                        </div>
+                        <div class="d-flex gap-3 mt-2">
+                            <div class="text-center">
+                                <div class="fw-bold text-primary" style="font-size:16px;">{{ p.jumlah_absensi }}</div>
+                                <div style="font-size:10px; color:#9ca3af;">Absensi</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="fw-bold text-indigo" style="font-size:16px; color:#6366f1;">{{ p.jumlah_logbook }}</div>
+                                <div style="font-size:10px; color:#9ca3af;">Logbook</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="fw-bold" style="font-size:16px; color:#f59e0b;">{{ p.tugas_list|length }}</div>
+                                <div style="font-size:10px; color:#9ca3af;">Tugas</div>
+                            </div>
+                            {% if p.penilaian %}
+                            <div class="text-center">
+                                <div class="fw-bold text-success" style="font-size:16px;">{{ p.penilaian.total_nilai }}</div>
+                                <div style="font-size:10px; color:#9ca3af;">Nilai</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% if p.logbook_pending > 0 %}
+                <div class="mt-2 pt-2 border-top d-flex align-items-center gap-2">
+                    <span class="badge bg-warning text-dark rounded-pill"><i class="fas fa-clock me-1"></i>{{ p.logbook_pending }} logbook menunggu verifikasi</span>
+                </div>
+                {% endif %}
+                <div class="click-hint"><i class="fas fa-mouse-pointer"></i> Klik untuk detail</div>
+            </div>
+        </div>
+
+        <!-- Modal Detail Peserta -->
+        <div class="modal fade modal-detail" id="modalPeserta{{ p.id }}" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <!-- Header -->
+                    <div class="modal-header-grad d-flex align-items-center gap-3">
+                        <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:white;flex-shrink:0;">
+                            {{ p.user.first_name|slice:":1"|upper }}
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="mb-0 fw-bold">{{ p.user.get_full_name }}</h5>
+                            <div style="opacity:.8;font-size:13px;">NIM: {{ p.nim }} &bull; {{ p.institusi }}</div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body p-4">
+
+                        <!-- Mini Stats -->
+                        <div class="d-flex gap-2 mb-4">
+                            <div class="mini-stat-card">
+                                <div class="num text-primary">{{ p.jumlah_absensi }}</div>
+                                <div class="lbl">Absensi</div>
+                            </div>
+                            <div class="mini-stat-card">
+                                <div class="num" style="color:#6366f1;">{{ p.jumlah_logbook }}</div>
+                                <div class="lbl">Logbook</div>
+                            </div>
+                            <div class="mini-stat-card">
+                                <div class="num" style="color:#f59e0b;">{{ p.tugas_list|length }}</div>
+                                <div class="lbl">Tugas</div>
+                            </div>
+                            <div class="mini-stat-card">
+                                {% if p.penilaian %}
+                                <div class="num text-success">{{ p.penilaian.total_nilai }}</div>
+                                {% else %}
+                                <div class="num text-muted">-</div>
+                                {% endif %}
+                                <div class="lbl">Nilai</div>
+                            </div>
+                        </div>
+
+                        <!-- Profil -->
+                        <div class="section-title"><i class="fas fa-id-card me-2"></i>Profil Peserta</div>
+                        <div class="p-3 rounded-3 mb-4" style="background:#f9fafb; border:1px solid #e5e7eb;">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="profile-row"><i class="fas fa-university"></i><span class="text-muted">Institusi:</span> <strong>{{ p.institusi }}</strong></div>
+                                    <div class="profile-row"><i class="fas fa-code-branch"></i><span class="text-muted">Jurusan:</span> <strong>{{ p.jurusan }}</strong></div>
+                                    <div class="profile-row"><i class="fas fa-briefcase"></i><span class="text-muted">Bidang:</span> <strong>{{ p.bidang_penempatan }}</strong></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="profile-row"><i class="fas fa-phone"></i><span class="text-muted">No. HP:</span> <strong>{{ p.no_hp|default:"-" }}</strong></div>
+                                    <div class="profile-row"><i class="fas fa-calendar-check"></i><span class="text-muted">Mulai:</span> <strong>{{ p.tanggal_mulai|date:"d M Y" }}</strong></div>
+                                    <div class="profile-row"><i class="fas fa-calendar-times"></i><span class="text-muted">Selesai:</span> <strong>{{ p.tanggal_selesai|date:"d M Y" }}</strong></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tugas / Projek -->
+                        <div class="section-title"><i class="fas fa-tasks me-2"></i>Tugas & Projek</div>
+                        {% if p.tugas_list %}
+                            {% for t in p.tugas_list %}
+                            <div class="tugas-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="fw-bold text-dark mb-1" style="font-size:14px;">{{ t.judul }}</div>
+                                        {% if t.bentuk_projek %}
+                                        <div class="mb-1"><span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25"><i class="fas fa-box-open me-1"></i>{{ t.bentuk_projek }}</span></div>
+                                        {% endif %}
+                                        <div class="text-muted small">{{ t.deskripsi|truncatechars:80 }}</div>
+                                    </div>
+                                    <div class="text-end ms-2" style="flex-shrink:0;">
+                                        <span class="badge rounded-pill {% if t.status == 'selesai' %}bg-success{% elif t.status == 'dikirim' %}bg-info{% elif t.status == 'perlu_revisi' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                            {{ t.get_status_display }}
+                                        </span>
+                                        <div class="text-muted mt-1" style="font-size:11px;"><i class="far fa-clock me-1"></i>{{ t.deadline|date:"d M Y" }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-3 text-muted small"><i class="fas fa-inbox me-2"></i>Belum ada tugas yang diberikan.</div>
+                        {% endif %}
+
+                        <!-- Logbook Terakhir -->
+                        <div class="section-title mt-4"><i class="fas fa-book-open me-2"></i>Aktifitas Logbook Terbaru</div>
+                        {% if p.logbook_terbaru %}
+                            {% for l in p.logbook_terbaru %}
+                            <div class="log-item">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <strong>{{ l.tanggal|date:"d M Y" }}</strong>
+                                    <span class="badge {% if l.status == 'diverifikasi' %}bg-success{% elif l.status == 'dikirim' %}bg-warning text-dark{% else %}bg-danger{% endif %} rounded-pill" style="font-size:10px;">{{ l.get_status_display }}</span>
+                                </div>
+                                <div class="text-muted">{{ l.kegiatan|truncatechars:100 }}</div>
+                                {% if l.tugas_terkait %}
+                                <div class="mt-1"><span class="badge bg-primary bg-opacity-10 text-primary" style="font-size:10px;"><i class="fas fa-project-diagram me-1"></i>{{ l.tugas_terkait.judul|truncatechars:30 }}</span></div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-3 text-muted small"><i class="fas fa-book me-2"></i>Belum ada logbook.</div>
+                        {% endif %}
+
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="modal-footer border-0 pt-0 pb-3 px-4 gap-2">
+                        <a href="{% url 'logbook:logbook_mentor' %}?q={{ p.nim }}" class="btn btn-outline-primary rounded-pill px-4 fw-semibold">
+                            <i class="fas fa-book-open me-1"></i> Semua Logbook
+                        </a>
+                        {% if p.penilaian %}
+                        <a href="{% url 'penilaian:penilaian_edit' p.penilaian.id %}" class="btn btn-warning rounded-pill px-4 fw-bold text-dark">
+                            <i class="fas fa-edit me-1"></i> Edit Nilai
+                        </a>
+                        {% else %}
+                        <a href="{% url 'penilaian:penilaian_create' p.id %}" class="btn btn-success rounded-pill px-4 fw-bold">
+                            <i class="fas fa-plus me-1"></i> Beri Nilai
+                        </a>
+                        {% endif %}
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="card border-0 shadow-sm text-center py-5" style="border-radius:18px;">
+        <i class="fas fa-user-slash fa-3x text-muted opacity-25 mb-3"></i>
+        <h5 class="text-muted">Belum Ada Peserta Bimbingan</h5>
+        <p class="text-muted small mb-0">Peserta bimbingan akan muncul di sini setelah mereka mendaftar dan memilih Anda sebagai mentor.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}Absensi - Manajemen Magang{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+
+
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h2>
+                    <i class="fas fa-calendar-check me-2 text-primary"></i>
+                    Absensi Harian
+                </h2>
+                <p class="text-muted">Lakukan absensi masuk dan keluar setiap hari magang</p>
+            </div>
+
+            <!-- Main Card -->
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>
+                        Status Absensi - {{ today|date:"l, d F Y" }}
+                    </h5>
+                </div>
+                <div class="card-body">
+
+                    <!-- NOTIFIKASI STATUS -->
+                    {% if sudah_checkin and sudah_checkout %}
+                    <!-- Sudah Check-in & Check-out -->
+                    <div class="alert alert-success text-center">
+                        <i class="fas fa-check-double fa-3x mb-2 d-block"></i>
+                        <h5>✅ Absensi hari ini sudah selesai!</h5>
+                        <p class="mb-0">
+                            <strong>Check-in:</strong> {{ absensi_hari_ini.check_in|time:"H:i" }} &nbsp;|&nbsp;
+                            <strong>Check-out:</strong> {{ absensi_hari_ini.check_out|time:"H:i" }}
+                        </p>
+                    </div>
+
+                    {% elif sudah_checkin %}
+                    <!-- Sudah Check-in, Belum Check-out -->
+                    <div class="alert alert-success text-center">
+                        <i class="fas fa-check-circle fa-3x mb-2 d-block"></i>
+                        <h5>✅ Anda sudah Check-in</h5>
+                        <p class="mb-0">
+                            <strong>Jam:</strong> {{ absensi_hari_ini.check_in|time:"H:i" }}
+                        </p>
+                        <p class="mb-0 text-muted small">Status: {{ absensi_hari_ini.get_status_display }}</p>
+                        <hr>
+                        <p class="mb-0 text-warning">
+                            <i class="fas fa-clock me-1"></i>
+                            Jangan lupa Check-out saat pulang!
+                        </p>
+                    </div>
+
+                    {% else %}
+                    <!-- Belum Absen -->
+                    <div class="alert alert-warning text-center">
+                        <i class="fas fa-clock fa-3x mb-2 d-block"></i>
+                        <h5>⏰ Belum Check-in</h5>
+                        <p class="mb-0">Silakan lakukan check-in untuk memulai aktivitas magang</p>
+                    </div>
+                    {% endif %}
+
+                    <hr>
+
+                    <!-- FORM ABSENSI -->
+                    <form method="POST" action="/absensi/">
+                        {% csrf_token %}
+
+                        <div class="row g-3">
+                            <!-- Dropdown Status -->
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Status</label>
+                                <select name="status" class="form-select" {% if sudah_checkin %}disabled{% endif %}>
+                                    <option value="hadir">Hadir</option>
+                                    <option value="sakit">Sakit</option>
+                                    <option value="izin">Izin</option>
+                                </select>
+                            </div>
+
+                            <!-- Tombol Aksi -->
+                            <div class="col-md-8 d-flex gap-2 align-items-end">
+                                <!-- Tombol Check-in -->
+                                {% if not sudah_checkin %}
+                                <button type="submit" name="action" value="checkin"
+                                    class="btn btn-success btn-lg flex-grow-1">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Check-in
+                                </button>
+                                {% endif %}
+
+                                <!-- Tombol Check-out -->
+                                {% if sudah_checkin and not sudah_checkout %}
+                                <button type="submit" name="action" value="checkout"
+                                    class="btn btn-danger btn-lg flex-grow-1">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Check-out
+                                </button>
+                                {% endif %}
+
+                                <!-- Status Selesai -->
+                                {% if sudah_checkout %}
+                                <div class="alert alert-success mb-0 w-100 text-center">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <strong>Absensi selesai!</strong>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Tombol Kembali -->
+                    <div class="mt-4 text-center">
+                        <a href="/dashboard/peserta/" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Kembali ke Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Riwayat Absensi -->
+            {% if riwayat_absensi %}
+            <div class="card shadow mt-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2 text-primary"></i>
+                        Riwayat Absensi (30 hari terakhir)
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Check-in</th>
+                                    <th>Check-out</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for absen in riwayat_absensi %}
+                                <tr>
+                                    <td>{{ absen.tanggal|date:"d/m/Y" }}</td>
+                                    <td>{{ absen.check_in|time:"H:i"|default:'-' }}</td>
+                                    <td>{{ absen.check_out|time:"H:i"|default:'-' }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if absen.status == 'hadir' %}bg-success
+                                            {% elif absen.status == 'sakit' %}bg-warning text-dark
+                                            {% elif absen.status == 'izin' %}bg-info
+                                            {% else %}bg-danger{% endif %}">
+                                            {{ absen.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

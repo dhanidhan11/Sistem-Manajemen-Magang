@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Penilaian - Manajemen Magang{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">
+        <i class="fas fa-star me-2 text-warning"></i>
+        Daftar Penilaian
+    </h2>
+
+    {% if request.user.groups.all.0.name == 'Mentor' %}
+    <div class="alert alert-info d-flex align-items-center">
+        <i class="fas fa-info-circle me-2 fa-lg"></i>
+        <span>Anda dapat menilai atau mengubah nilai peserta bimbingan Anda langsung dari tabel di bawah.</span>
+    </div>
+    {% endif %}
+
+    {% if penilaian %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Peserta</th>
+                    <th>Mentor</th>
+                    <th>Total Nilai</th>
+                    <th>Tanggal</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in penilaian %}
+                <tr>
+                    <td>{{ p.peserta.user.get_full_name }}</td>
+                    <td>{{ p.mentor.get_full_name }}</td>
+                    <td>
+                        <span
+                            class="badge bg-{% if p.total_nilai >= 85 %}success{% elif p.total_nilai >= 70 %}warning{% else %}danger{% endif %}">
+                            {{ p.total_nilai }}
+                        </span>
+                    </td>
+                    <td>{{ p.tanggal_penilaian|date:"d/m/Y" }}</td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'penilaian:penilaian_detail' p.id %}" class="btn btn-sm btn-info rounded-pill px-3">
+                                <i class="fas fa-eye me-1"></i>Detail
+                            </a>
+                            {% if request.user.groups.all.0.name == 'Mentor' and p.mentor == request.user %}
+                            <a href="{% url 'penilaian:penilaian_edit' p.id %}" class="btn btn-sm btn-outline-warning rounded-pill px-3">
+                                <i class="fas fa-edit me-1"></i>Ubah
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">
+        <i class="fas fa-info-circle fa-2x d-block mb-2"></i>
+        <h5>Belum ada penilaian</h5>
+        <p>Belum ada penilaian yang tersimpan.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

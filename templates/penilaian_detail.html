@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Detail Penilaian{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-alt me-2"></i>
+                        Detail Penilaian
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Peserta:</strong> {{ penilaian.peserta.user.get_full_name }}</p>
+                            <p><strong>Mentor:</strong> {{ penilaian.mentor.get_full_name }}</p>
+                            <p><strong>Tanggal:</strong> {{ penilaian.tanggal_penilaian|date:"d/m/Y H:i" }}</p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <h2>
+                                <span
+                                    class="badge bg-{% if penilaian.total_nilai >= 85 %}success{% elif penilaian.total_nilai >= 70 %}warning{% else %}danger{% endif %}">
+                                    {{ penilaian.total_nilai }}
+                                </span>
+                            </h2>
+                            <small class="text-muted">Total Nilai</small>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded-3">
+                                <strong>Kedisiplinan</strong>
+                                <div class="progress mt-2" style="height: 20px;">
+                                    <div class="progress-bar bg-primary" style="width: {{ penilaian.kedisiplinan }}%">
+                                        {{ penilaian.kedisiplinan }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded-3">
+                                <strong>Kreativitas</strong>
+                                <div class="progress mt-2" style="height: 20px;">
+                                    <div class="progress-bar bg-success" style="width: {{ penilaian.kreativitas }}%">
+                                        {{ penilaian.kreativitas }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded-3">
+                                <strong>Komunikasi</strong>
+                                <div class="progress mt-2" style="height: 20px;">
+                                    <div class="progress-bar bg-info" style="width: {{ penilaian.komunikasi }}%">
+                                        {{ penilaian.komunikasi }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded-3">
+                                <strong>Kemampuan Teknis</strong>
+                                <div class="progress mt-2" style="height: 20px;">
+                                    <div class="progress-bar bg-warning" style="width: {{ penilaian.teknis }}%">
+                                        {{ penilaian.teknis }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded-3">
+                                <strong>Presensi</strong>
+                                <div class="progress mt-2" style="height: 20px;">
+                                    <div class="progress-bar bg-danger" style="width: {{ penilaian.presensi }}%">
+                                        {{ penilaian.presensi }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded-3">
+                                <strong>Presentasi</strong>
+                                <div class="progress mt-2" style="height: 20px;">
+                                    <div class="progress-bar bg-secondary" style="width: {{ penilaian.presentasi }}%">
+                                        {{ penilaian.presentasi }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 bg-light rounded-3">
+                                <strong>Sikap</strong>
+                                <div class="progress mt-2" style="height: 20px;">
+                                    <div class="progress-bar bg-dark" style="width: {{ penilaian.sikap }}%">
+                                        {{ penilaian.sikap }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if penilaian.catatan %}
+                    <hr>
+                    <div class="p-3 bg-light rounded-3">
+                        <strong>Catatan:</strong>
+                        <p class="mb-0">{{ penilaian.catatan }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4 d-flex justify-content-between align-items-center">
+                        <a href="{% url 'penilaian:penilaian_list' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                            <i class="fas fa-arrow-left me-2"></i>Kembali
+                        </a>
+                        {% if request.user.groups.all.0.name == 'Mentor' and penilaian.mentor == request.user %}
+                        <a href="{% url 'penilaian:penilaian_edit' penilaian.id %}" class="btn btn-warning text-dark rounded-pill px-4 fw-bold">
+                            <i class="fas fa-edit me-2"></i>Ubah Nilai
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
