@@ -4,6 +4,28 @@ Sistem Manajemen Magang (SMM) adalah platform berbasis web yang dibangun menggun
 
 ---
 
+## 📸 Tampilan Aplikasi (Screenshots)
+
+Berikut adalah beberapa tampilan halaman dari Sistem Manajemen Magang:
+
+### 🔐 Halaman Login (Masuk Akun)
+![Halaman Login](docs/screenshots/login.png)
+
+### 📅 Halaman Absensi Harian (Clock In / Clock Out)
+![Halaman Absensi](docs/screenshots/absensi.png)
+
+### 📝 Halaman Logbook Harian
+![Halaman Logbook](docs/screenshots/logbook.png)
+
+### 📋 Halaman Daftar Tugas Saya
+![Daftar Tugas](docs/screenshots/tugas.png)
+
+### 📂 Halaman Data Projek Magang
+![Halaman Projek](docs/screenshots/projek.png)
+
+---
+
+
 ## 👥 Hak Akses & Fitur Utama
 
 Sistem ini memiliki 3 peran (roles) utama dengan tanggung jawab sebagai berikut:
