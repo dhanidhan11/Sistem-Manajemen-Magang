@@ -152,11 +152,10 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Gunakan MD5 hasher untuk mempercepat proses login saat tahap Development (Testing) di localhost
 # HAPUS MD5PasswordHasher di production untuk keamanan!
 # ============================================================
-if DEBUG:
-    PASSWORD_HASHERS = [
-        'django.contrib.auth.hashers.MD5PasswordHasher',
-        'django.contrib.auth.hashers.PBKDF2PasswordHasher',
-        'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
-        'django.contrib.auth.hashers.Argon2PasswordHasher',
-        'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
-    ]
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+]
