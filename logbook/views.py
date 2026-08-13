@@ -18,6 +18,11 @@ def logbook_list(request):
         messages.error(request, 'Anda tidak terdaftar sebagai peserta magang!')
         return redirect('/dashboard/peserta/')
     
+    if peserta.status != 'aktif':
+        status_label = dict(Peserta.STATUS_CHOICES).get(peserta.status, peserta.status)
+        messages.warning(request, f'Fitur Logbook hanya dapat diakses setelah akun Anda disetujui (Status: {status_label}).')
+        return redirect('/dashboard/peserta/')
+    
     logbooks = Logbook.objects.filter(peserta=peserta).order_by('-tanggal')
     
     context = {
@@ -34,6 +39,11 @@ def logbook_create(request):
         peserta = Peserta.objects.get(user=request.user)
     except Peserta.DoesNotExist:
         messages.error(request, 'Anda tidak terdaftar sebagai peserta magang!')
+        return redirect('/dashboard/peserta/')
+    
+    if peserta.status != 'aktif':
+        status_label = dict(Peserta.STATUS_CHOICES).get(peserta.status, peserta.status)
+        messages.warning(request, f'Fitur Logbook hanya dapat diakses setelah akun Anda disetujui (Status: {status_label}).')
         return redirect('/dashboard/peserta/')
     
     if request.method == 'POST':

@@ -13,6 +13,10 @@ def projek_detail(request, pk=None):
         # Peserta melihat projeknya sendiri
         try:
             peserta = Peserta.objects.get(user=request.user)
+            if peserta.status != 'aktif':
+                status_label = dict(Peserta.STATUS_CHOICES).get(peserta.status, peserta.status)
+                messages.warning(request, f'Fitur Projek hanya dapat diakses setelah akun Anda disetujui (Status: {status_label}).')
+                return redirect('/dashboard/peserta/')
             projek = ProjekMagang.objects.filter(peserta=peserta).first()
             if not projek:
                 messages.info(request, 'Anda belum menyusun rencana projek. Silakan buat sekarang.')
@@ -45,6 +49,11 @@ def projek_manage(request):
     except Peserta.DoesNotExist:
         messages.error(request, 'Hanya peserta magang yang dapat mengelola projek.')
         return redirect('/')
+    
+    if peserta.status != 'aktif':
+        status_label = dict(Peserta.STATUS_CHOICES).get(peserta.status, peserta.status)
+        messages.warning(request, f'Fitur Projek hanya dapat diakses setelah akun Anda disetujui (Status: {status_label}).')
+        return redirect('/dashboard/peserta/')
     
     projek = ProjekMagang.objects.filter(peserta=peserta).first()
     

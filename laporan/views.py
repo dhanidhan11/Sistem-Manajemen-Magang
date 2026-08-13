@@ -26,6 +26,11 @@ def laporan_peserta(request):
         messages.error(request, 'Anda tidak terdaftar sebagai peserta magang!')
         return redirect('/dashboard/peserta/')
     
+    if peserta.status != 'aktif':
+        status_label = dict(Peserta.STATUS_CHOICES).get(peserta.status, peserta.status)
+        messages.warning(request, f'Fitur Laporan hanya dapat diakses setelah akun Anda disetujui (Status: {status_label}).')
+        return redirect('/dashboard/peserta/')
+    
     # Hitung data
     total_absensi = Absensi.objects.filter(peserta=peserta).count()
     total_logbook = Logbook.objects.filter(peserta=peserta).count()
@@ -130,6 +135,11 @@ def export_excel_peserta(request):
         peserta = Peserta.objects.get(user=request.user)
     except Peserta.DoesNotExist:
         messages.error(request, 'Anda tidak terdaftar sebagai peserta magang!')
+        return redirect('/dashboard/peserta/')
+    
+    if peserta.status != 'aktif':
+        status_label = dict(Peserta.STATUS_CHOICES).get(peserta.status, peserta.status)
+        messages.warning(request, f'Fitur Ekspor Laporan hanya dapat diakses setelah akun Anda disetujui (Status: {status_label}).')
         return redirect('/dashboard/peserta/')
     
     # Buat workbook

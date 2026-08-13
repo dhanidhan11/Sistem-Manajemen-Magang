@@ -82,6 +82,11 @@ def tugas_list_peserta(request):
         messages.error(request, 'Peserta tidak ditemukan!')
         return redirect('/')
     
+    if peserta.status != 'aktif':
+        status_label = dict(Peserta.STATUS_CHOICES).get(peserta.status, peserta.status)
+        messages.warning(request, f'Fitur Tugas hanya dapat diakses setelah akun Anda disetujui (Status: {status_label}).')
+        return redirect('/dashboard/peserta/')
+    
     today = date.today()
     tugas_saya = Tugas.objects.filter(peserta=peserta).order_by('deadline')
     
@@ -111,6 +116,11 @@ def tugas_kerjakan(request, pk):
     except Peserta.DoesNotExist:
         messages.error(request, 'Hanya peserta magang yang dapat mengerjakan tugas.')
         return redirect('/')
+    
+    if peserta.status != 'aktif':
+        status_label = dict(Peserta.STATUS_CHOICES).get(peserta.status, peserta.status)
+        messages.warning(request, f'Fitur Tugas hanya dapat diakses setelah akun Anda disetujui (Status: {status_label}).')
+        return redirect('/dashboard/peserta/')
         
     tugas = get_object_or_404(Tugas, pk=pk, peserta=peserta)
     

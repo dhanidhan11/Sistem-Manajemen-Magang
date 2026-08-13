@@ -100,6 +100,7 @@
                                         <i class="fas fa-th-large"></i> Dashboard
                                     </a>
                                 </li>
+                                {% if user.peserta and user.peserta.status == 'aktif' %}
                                 <li>
                                     <a href="/absensi/" class="nav-link-item {% if '/absensi' in request.path %}active{% endif %}">
                                         <i class="fas fa-calendar-check"></i> Absensi
@@ -125,6 +126,7 @@
                                         <i class="fas fa-file-alt"></i> Laporan
                                     </a>
                                 </li>
+                                {% endif %}
                             {% endif %}
                         {% endfor %}
                     {% else %}
@@ -171,6 +173,17 @@
                                     {% if user.mentor_profile.gelar %}{{ user.mentor_profile.gelar }} &middot; {% endif %}
                                 {% endif %}
                                 {{ group.name }}
+                                {% if group.name == 'Peserta' and user.peserta %}
+                                    {% if user.peserta.status == 'aktif' %}
+                                        <span style="display:inline-block; font-size:10px; background:#22c55e; color:#ffffff; padding:1px 6px; border-radius:10px; margin-left:4px; font-weight:700;">Aktif</span>
+                                    {% elif user.peserta.status == 'ditolak' %}
+                                        <span style="display:inline-block; font-size:10px; background:#ef4444; color:#ffffff; padding:1px 6px; border-radius:10px; margin-left:4px; font-weight:700;">Ditolak</span>
+                                    {% elif user.peserta.status == 'terdaftar' %}
+                                        <span style="display:inline-block; font-size:10px; background:#f59e0b; color:#ffffff; padding:1px 6px; border-radius:10px; margin-left:4px; font-weight:700;">Pending</span>
+                                    {% elif user.peserta.status == 'selesai' %}
+                                        <span style="display:inline-block; font-size:10px; background:#64748b; color:#ffffff; padding:1px 6px; border-radius:10px; margin-left:4px; font-weight:700;">Selesai</span>
+                                    {% endif %}
+                                {% endif %}
                             </div>
                         </div>
                         {% if group.name == 'Mentor' or group.name == 'Peserta' %}
