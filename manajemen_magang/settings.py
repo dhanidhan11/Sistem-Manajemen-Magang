@@ -75,32 +75,18 @@ WSGI_APPLICATION = 'manajemen_magang.wsgi.application'
 # ============================================================
 # Database — NeonDB (PostgreSQL)
 # ============================================================
-DATABASE_URL = config('DATABASE_URL', default=None)
+DATABASE_URL = config(
+    'DATABASE_URL',
+    default='postgresql://neondb_owner:npg_x4QanVhYjE0S@ep-billowing-darkness-azcdgd4q-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require'
+)
 
-if DATABASE_URL:
-    # Production: NeonDB via DATABASE_URL environment variable
-    DATABASES = {
-        'default': dj_database_url.parse(
-            DATABASE_URL,
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-    }
-else:
-    # Development lokal: tetap pakai MySQL
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': config('DB_NAME', default='db_magang'),
-            'USER': config('DB_USER', default='root'),
-            'PASSWORD': config('DB_PASSWORD', default=''),
-            'HOST': config('DB_HOST', default='127.0.0.1'),
-            'PORT': config('DB_PORT', default='3306'),
-            'OPTIONS': {
-                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            }
-        }
-    }
+DATABASES = {
+    'default': dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
+}
 
 
 # ============================================================
