@@ -65,6 +65,11 @@ def penilaian_create(request, peserta_id):
             messages.error(request, f'⚠️ Pilih nilai untuk: {missing_str}')
             return redirect('penilaian:penilaian_create', peserta_id=peserta_id)
         
+        # Validasi range nilai 0–100
+        if not all(0 <= n <= 100 for n in [kedisiplinan, kreativitas, komunikasi, teknis, presensi, presentasi, sikap]):
+            messages.error(request, '⚠️ Nilai harus antara 0 hingga 100!')
+            return redirect('penilaian:penilaian_create', peserta_id=peserta_id)
+        
         penilaian = Penilaian.objects.create(
             peserta=peserta,
             mentor=request.user,

@@ -4,3 +4,6 @@ sqlparse==0.5.5
 tzdata==2026.2
 openpyxl
 pillow
+psycopg2-binary
+whitenoise
+python-decouple

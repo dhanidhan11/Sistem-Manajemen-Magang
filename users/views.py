@@ -490,7 +490,7 @@ def profile_edit(request):
             peserta_profile = Peserta.objects.get(user=user)
         except Peserta.DoesNotExist:
             messages.error(request, 'Data peserta tidak ditemukan.')
-            return redirect('users:dashboard_peserta')
+            return redirect('/dashboard/peserta/')
 
     if request.method == 'POST':
         # Update field User bawaan Django

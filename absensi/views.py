@@ -20,32 +20,37 @@ def absensi_view(request):
         }
         return render(request, 'absensi_admin.html', context)
     
+    # Mentor tidak punya halaman absensi peserta
+    if request.user.groups.filter(name='Mentor').exists():
+        messages.info(request, 'Halaman absensi hanya tersedia untuk Peserta Magang.')
+        return redirect('/dashboard/mentor/')
+
     # Peserta: tampilkan absensi sendiri
     try:
         peserta = Peserta.objects.get(user=request.user)
     except Peserta.DoesNotExist:
         messages.error(request, 'Anda tidak terdaftar sebagai peserta magang!')
         return redirect('/dashboard/peserta/')
+
+    # Hanya peserta dengan status 'aktif' yang boleh absen
+    if peserta.status != 'aktif':
+        status_label = dict(Peserta.STATUS_CHOICES).get(peserta.status, peserta.status)
+        messages.warning(request, f'Anda belum dapat melakukan absensi. Status akun Anda: {status_label}.')
+        return redirect('/dashboard/peserta/')
     
     today = timezone.now().date()
     
-    # Cari absensi hari ini
-    absensi_hari_ini = Absensi.objects.filter(
+    # Gunakan get_or_create untuk mencegah race condition / duplikasi
+    absensi_hari_ini, _ = Absensi.objects.get_or_create(
         peserta=peserta,
-        tanggal=today
-    ).first()
-    
-    # Jika belum ada, buat baru
-    if not absensi_hari_ini:
-        absensi_hari_ini = Absensi(
-            peserta=peserta,
-            tanggal=today,
-            check_in=None,
-            check_out=None,
-            status='hadir',
-            keterangan=''
-        )
-        absensi_hari_ini.save()
+        tanggal=today,
+        defaults={
+            'check_in': None,
+            'check_out': None,
+            'status': 'hadir',
+            'keterangan': ''
+        }
+    )
     
     sudah_checkin = absensi_hari_ini.check_in is not None
     sudah_checkout = absensi_hari_ini.check_out is not None

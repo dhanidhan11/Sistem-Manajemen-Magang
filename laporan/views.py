@@ -85,7 +85,7 @@ def laporan_peserta(request):
 def laporan_admin(request):
     """Laporan untuk admin (semua peserta)"""
     
-    if not request.user.groups.filter(name='Admin').exists():
+    if not (request.user.is_superuser or request.user.groups.filter(name='Admin').exists()):
         messages.error(request, 'Anda tidak memiliki akses!')
         return redirect('/dashboard/admin/')
     
@@ -192,7 +192,7 @@ def export_excel_peserta(request):
     statistik = [
         ['Total Absensi', total_absensi],
         ['Total Logbook', total_logbook],
-        ['Hari Ke-', (date.today() - peserta.tanggal_mulai).days + 1 if peserta.tanggal_mulai else 0],
+        ['Hari Ke-', (date.today() - peserta.tanggal_mulai).days + 1 if peserta.tanggal_mulai and peserta.tanggal_mulai <= date.today() else 0],
     ]
     
     for i, (label, value) in enumerate(statistik):
@@ -309,7 +309,7 @@ def export_excel_peserta(request):
 def export_excel_admin(request):
     """Export laporan admin ke Excel"""
     
-    if not request.user.groups.filter(name='Admin').exists():
+    if not (request.user.is_superuser or request.user.groups.filter(name='Admin').exists()):
         messages.error(request, 'Anda tidak memiliki akses!')
         return redirect('/dashboard/admin/')
     
