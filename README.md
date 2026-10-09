@@ -4,6 +4,27 @@ Sistem Manajemen Magang (SMM) adalah platform berbasis web yang dibangun menggun
 
 ---
 
+## 🌐 Demo Langsung (Live Demo)
+
+Akses aplikasi secara online tanpa instalasi:
+
+**👉 https://sistem-manajemen-magang.vercel.app**
+
+### 🔑 Akun Demo
+
+Gunakan akun berikut untuk mencoba semua fitur:
+
+| Role | Username | Password | Keterangan |
+|------|----------|----------|------------|
+| 👑 **Admin** | `admin` | `admin123` | Akses penuh ke semua fitur & panel admin |
+| 👨‍🏫 **Mentor** | `mentor1` | `mentor123` | Verifikasi logbook, beri tugas & penilaian |
+| 🎓 **Peserta** | `mahasiswa1` | `mahasiswa123` | Absensi, logbook, tugas & laporan |
+| 🎓 **Peserta** | `jeki` | `jeki123` | Akun peserta alternatif |
+
+> ⚠️ **Catatan:** Akun di atas adalah akun demo untuk keperluan pengujian. Jangan gunakan data pribadi saat mencoba aplikasi ini.
+
+---
+
 ## 📸 Tampilan Aplikasi (Screenshots)
 
 Berikut adalah beberapa tampilan halaman dari Sistem Manajemen Magang:
