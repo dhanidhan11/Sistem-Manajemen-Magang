@@ -1,0 +1,496 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Laporan Bimbingan - Mentor{% endblock %}
+{% block page_title %}Laporan Bimbingan{% endblock %}
+
+{% block extra_css %}
+<style>
+.report-banner {
+    background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%);
+    border-radius: 20px;
+    padding: 32px;
+    color: white;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+}
+.report-banner::after {
+    content: '';
+    position: absolute;
+    right: -40px; top: -40px;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 50%;
+}
+.tab-nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    background: #f1f5f9;
+    padding: 6px;
+    border-radius: 14px;
+}
+.tab-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: #64748b;
+    cursor: pointer;
+    transition: all .2s;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+}
+.tab-btn.active {
+    background: white;
+    color: #0f766e;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+.section-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid rgba(13,148,136,0.1);
+    box-shadow: 0 2px 12px rgba(13,148,136,0.06);
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+.section-card-header {
+    padding: 16px 24px;
+    background: #f0fdfa;
+    border-bottom: 1px solid #ccfbf1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-weight: 700;
+    color: #0f766e;
+}
+.section-card-body { padding: 20px 24px; }
+
+.stat-mini {
+    background: #f0fdfa;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #ccfbf1;
+}
+.stat-mini .num {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #0d9488;
+    line-height: 1;
+}
+.stat-mini .lbl {
+    font-size: 0.78rem;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-top: 5px;
+}
+
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-end;
+    background: #f8fafc;
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+}
+.filter-form .form-group { display: flex; flex-direction: column; gap: 4px; }
+.filter-form label { font-size: 0.78rem; font-weight: 600; color: #475569; }
+.filter-form input, .filter-form select {
+    padding: 7px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    color: #1e293b;
+}
+.btn-terapkan {
+    background: linear-gradient(135deg, #0f766e, #0d9488);
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.88rem;
+}
+.btn-terapkan:hover { opacity: .9; }
+
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.status-hadir { background: #dcfce7; color: #166534; }
+.status-izin  { background: #fef9c3; color: #854d0e; }
+.status-sakit { background: #dbeafe; color: #1e40af; }
+.status-alpha { background: #fee2e2; color: #991b1b; }
+.status-belum { background: #f1f5f9; color: #64748b; }
+
+.table-compact th { font-size: 0.8rem; padding: 10px 12px; white-space: nowrap; background: #f0fdfa; color: #0f766e; border-bottom: 2px solid #ccfbf1; }
+.table-compact td { font-size: 0.85rem; padding: 10px 12px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
+.table-compact tbody tr:hover { background: #f8fffe; }
+
+.rekap-persen-bar {
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+.rekap-persen-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0d9488, #14b8a6);
+    border-radius: 3px;
+    transition: width .4s;
+}
+
+.btn-export {
+    background: linear-gradient(135deg, #0f766e, #0d9488);
+    color: white;
+    border: none;
+    padding: 9px 18px;
+    border-radius: 9px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    text-decoration: none;
+}
+.btn-export:hover { opacity: .9; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Banner Header -->
+<div class="report-banner">
+    <div style="position:relative;z-index:1;">
+        <div style="font-size:0.82rem;opacity:.8;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;">
+            <i class="fas fa-file-chart-bar me-2"></i>Laporan Bimbingan
+        </div>
+        <h2 style="font-size:1.7rem;font-weight:800;margin:0 0 6px;">{{ request.user.get_full_name }}</h2>
+        <div style="opacity:.85;font-size:0.9rem;">
+            {{ total_bimbingan }} Peserta Aktif &bull; {{ today|date:"d F Y" }}
+        </div>
+    </div>
+</div>
+
+<!-- Tab Navigation -->
+<div class="tab-nav">
+    <button class="tab-btn {% if active_tab == 'ringkasan' %}active{% endif %}" onclick="switchTab('ringkasan', this)">
+        <i class="fas fa-chart-pie"></i> Ringkasan
+    </button>
+    <button class="tab-btn {% if active_tab == 'harian' %}active{% endif %}" onclick="switchTab('harian', this)">
+        <i class="fas fa-calendar-day"></i> Laporan Harian
+    </button>
+    <button class="tab-btn {% if active_tab == 'bulanan' %}active{% endif %}" onclick="switchTab('bulanan', this)">
+        <i class="fas fa-calendar-alt"></i> Laporan Bulanan
+    </button>
+</div>
+
+<!-- ========== TAB 1: RINGKASAN ========== -->
+<div id="tab-ringkasan" class="tab-pane {% if active_tab == 'ringkasan' %}active{% endif %}">
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-mini">
+                <div class="num">{{ total_bimbingan }}</div>
+                <div class="lbl">Peserta Aktif</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-mini">
+                <div class="num">{{ absensi_hari_ini_mentor }}</div>
+                <div class="lbl">Absen Hari Ini</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-mini">
+                <div class="num">{{ logbook_pending_mentor }}</div>
+                <div class="lbl">Logbook Pending</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-mini">
+                <div class="num">{{ today|date:"d" }}</div>
+                <div class="lbl">{{ today|date:"F Y" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-card-header">
+            <span><i class="fas fa-users me-2"></i>Daftar Peserta Bimbingan</span>
+        </div>
+        <div class="section-card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-compact mb-0">
+                    <thead><tr>
+                        <th>No</th><th>Nama Peserta</th><th>NIM</th><th>Institusi</th><th>Bidang</th><th>Periode Magang</th>
+                    </tr></thead>
+                    <tbody>
+                        {% for p in bimbingan_list %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><strong>{{ p.user.get_full_name }}</strong></td>
+                            <td>{{ p.nim }}</td>
+                            <td>{{ p.institusi }}</td>
+                            <td>{{ p.bidang_penempatan }}</td>
+                            <td>{{ p.tanggal_mulai|date:"d/m/Y" }} – {{ p.tanggal_selesai|date:"d/m/Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6" class="text-center text-muted py-3">Belum ada peserta bimbingan aktif.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== TAB 2: LAPORAN HARIAN ========== -->
+<div id="tab-harian" class="tab-pane {% if active_tab == 'harian' %}active{% endif %}">
+    <form method="GET" action="?">
+        <input type="hidden" name="tab" value="harian">
+        <div class="filter-form">
+            <div class="form-group" style="margin-right: 10px;">
+                <label><i class="fas fa-user me-1"></i>Peserta Bimbingan</label>
+                <select name="peserta_id" style="min-width: 180px;">
+                    <option value="">-- Semua Peserta --</option>
+                    {% for p in all_bimbingan_filter %}
+                    <option value="{{ p.id }}" {% if p.id == selected_peserta_id %}selected{% endif %}>{{ p.user.get_full_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-calendar me-1"></i>Pilih Tanggal</label>
+                <input type="date" name="tanggal" value="{{ selected_date_str }}" max="{{ today|date:'Y-m-d' }}">
+            </div>
+            <button type="submit" class="btn-terapkan"><i class="fas fa-search me-1"></i>Tampilkan</button>
+            <a href="{% url 'laporan:export_excel_harian_mentor' %}?tanggal={{ selected_date_str }}{% if selected_peserta_id %}&peserta_id={{ selected_peserta_id }}{% endif %}" class="btn-export ms-auto">
+                <i class="fas fa-file-excel"></i> Export Excel Harian
+            </a>
+        </div>
+    </form>
+
+    <!-- Kartu Ringkasan Harian -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-2">
+            <div class="stat-mini">
+                <div class="num" style="color:#16a34a;">{{ count_hadir_hr }}</div>
+                <div class="lbl">Hadir</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="stat-mini">
+                <div class="num" style="color:#ca8a04;">{{ count_izin_hr }}</div>
+                <div class="lbl">Izin</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="stat-mini">
+                <div class="num" style="color:#2563eb;">{{ count_sakit_hr }}</div>
+                <div class="lbl">Sakit</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="stat-mini">
+                <div class="num" style="color:#dc2626;">{{ count_alpha_hr }}</div>
+                <div class="lbl">Alpha</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="stat-mini">
+                <div class="num" style="color:#94a3b8;">{{ count_belum_hr }}</div>
+                <div class="lbl">Belum</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabel Absensi Harian -->
+    <div class="section-card">
+        <div class="section-card-header">
+            <span><i class="fas fa-clipboard-check me-2"></i>Presensi Tanggal {{ selected_date|date:"d F Y" }}</span>
+        </div>
+        <div class="section-card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-compact mb-0">
+                    <thead><tr>
+                        <th>No</th><th>Nama Peserta</th><th>NIM</th><th>Bidang</th><th>Check-in</th><th>Check-out</th><th>Status</th>
+                    </tr></thead>
+                    <tbody>
+                        {% for item in rekap_harian_mentor %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><strong>{{ item.peserta.user.get_full_name }}</strong></td>
+                            <td>{{ item.peserta.nim }}</td>
+                            <td>{{ item.peserta.bidang_penempatan }}</td>
+                            <td>{{ item.absen.check_in|time:"H:i"|default:"-" }}</td>
+                            <td>{{ item.absen.check_out|time:"H:i"|default:"-" }}</td>
+                            <td>
+                                {% if item.status == 'hadir' %}<span class="status-badge status-hadir">Hadir</span>
+                                {% elif item.status == 'izin' %}<span class="status-badge status-izin">Izin</span>
+                                {% elif item.status == 'sakit' %}<span class="status-badge status-sakit">Sakit</span>
+                                {% elif item.status == 'alpha' %}<span class="status-badge status-alpha">Alpha</span>
+                                {% else %}<span class="status-badge status-belum">Belum Absen</span>{% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="7" class="text-center text-muted py-3">Tidak ada data absensi untuk tanggal ini.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabel Logbook Harian -->
+    <div class="section-card">
+        <div class="section-card-header">
+            <span><i class="fas fa-book-open me-2"></i>Logbook Kegiatan Tanggal {{ selected_date|date:"d F Y" }}</span>
+        </div>
+        <div class="section-card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-compact mb-0">
+                    <thead><tr>
+                        <th>No</th><th>Nama Peserta</th><th>NIM</th><th>Kegiatan</th><th>Status</th>
+                    </tr></thead>
+                    <tbody>
+                        {% for log in logbooks_harian_mentor %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><strong>{{ log.peserta.user.get_full_name }}</strong></td>
+                            <td>{{ log.peserta.nim }}</td>
+                            <td>{{ log.kegiatan|truncatechars:80 }}</td>
+                            <td><span class="status-badge" style="background:#f0fdfa;color:#0f766e;">{{ log.get_status_display }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center text-muted py-3">Tidak ada logbook pada tanggal ini.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== TAB 3: LAPORAN BULANAN ========== -->
+<div id="tab-bulanan" class="tab-pane {% if active_tab == 'bulanan' %}active{% endif %}">
+    <form method="GET" action="?">
+        <input type="hidden" name="tab" value="bulanan">
+        <div class="filter-form">
+            <div class="form-group" style="margin-right: 10px;">
+                <label><i class="fas fa-user me-1"></i>Peserta Bimbingan</label>
+                <select name="peserta_id" style="min-width: 180px;">
+                    <option value="">-- Semua Peserta --</option>
+                    {% for p in all_bimbingan_filter %}
+                    <option value="{{ p.id }}" {% if p.id == selected_peserta_id %}selected{% endif %}>{{ p.user.get_full_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-calendar-alt me-1"></i>Bulan</label>
+                <select name="bulan">
+                    {% for num, nama in month_names %}
+                    <option value="{{ num }}" {% if num == selected_month %}selected{% endif %}>{{ nama }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Tahun</label>
+                <select name="tahun">
+                    {% for yr in available_years %}
+                    <option value="{{ yr }}" {% if yr == selected_year %}selected{% endif %}>{{ yr }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn-terapkan"><i class="fas fa-search me-1"></i>Tampilkan</button>
+            <a href="{% url 'laporan:export_excel_bulanan_mentor' %}?bulan={{ selected_month }}&tahun={{ selected_year }}{% if selected_peserta_id %}&peserta_id={{ selected_peserta_id }}{% endif %}" class="btn-export ms-auto">
+                <i class="fas fa-file-excel"></i> Export Excel Bulanan
+            </a>
+        </div>
+    </form>
+
+    <div class="section-card">
+        <div class="section-card-header">
+            <span><i class="fas fa-table me-2"></i>Rekapitulasi Bulan {{ selected_month_name }} {{ selected_year }}</span>
+        </div>
+        <div class="section-card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-compact mb-0">
+                    <thead><tr>
+                        <th>No</th><th>Nama Peserta</th><th>NIM</th>
+                        <th class="text-center" style="color:#16a34a;">Hadir</th>
+                        <th class="text-center" style="color:#ca8a04;">Izin</th>
+                        <th class="text-center" style="color:#2563eb;">Sakit</th>
+                        <th class="text-center" style="color:#dc2626;">Alpha</th>
+                        <th>% Kehadiran</th>
+                        <th class="text-center">Logbook</th>
+                    </tr></thead>
+                    <tbody>
+                        {% for item in rekap_bulanan_mentor %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><strong>{{ item.peserta.user.get_full_name }}</strong></td>
+                            <td>{{ item.peserta.nim }}</td>
+                            <td class="text-center"><strong style="color:#16a34a;">{{ item.hadir }}</strong></td>
+                            <td class="text-center"><strong style="color:#ca8a04;">{{ item.izin }}</strong></td>
+                            <td class="text-center"><strong style="color:#2563eb;">{{ item.sakit }}</strong></td>
+                            <td class="text-center"><strong style="color:#dc2626;">{{ item.alpha }}</strong></td>
+                            <td style="min-width:120px;">
+                                <div style="font-size:0.8rem;font-weight:700;margin-bottom:3px;">{{ item.persentase_hadir }}%</div>
+                                <div class="rekap-persen-bar">
+                                    <div class="rekap-persen-fill" style="width:{{ item.persentase_hadir }}%;"></div>
+                                </div>
+                            </td>
+                            <td class="text-center"><strong>{{ item.total_logbook }}</strong></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="9" class="text-center text-muted py-3">Tidak ada data absensi bulan ini.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                    {% if rekap_bulanan_mentor %}
+                    <tfoot><tr style="background:#f0fdfa;font-weight:700;">
+                        <td colspan="3">Total</td>
+                        <td class="text-center">{{ total_hadir_all_bln|default:0 }}</td>
+                        <td class="text-center">{{ total_izin_all_bln|default:0 }}</td>
+                        <td class="text-center">{{ total_sakit_all_bln|default:0 }}</td>
+                        <td class="text-center">{{ total_alpha_all_bln|default:0 }}</td>
+                        <td>—</td>
+                        <td class="text-center">{{ total_logbook_mentor_bln }}</td>
+                    </tr></tfoot>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function switchTab(name, btn) {
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+}
+</script>
+{% endblock %}

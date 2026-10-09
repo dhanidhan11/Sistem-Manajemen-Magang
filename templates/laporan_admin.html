@@ -6,7 +6,6 @@
 
 {% block extra_css %}
 <style>
-/* ===== SCREEN STYLES ===== */
 .report-header-banner {
     background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
     border-radius: 20px;
@@ -16,7 +15,6 @@
     position: relative;
     overflow: hidden;
 }
-
 .report-header-banner::after {
     content: '';
     position: absolute;
@@ -25,7 +23,6 @@
     background: rgba(255,255,255,0.07);
     border-radius: 50%;
 }
-
 .section-card {
     background: white;
     border-radius: 16px;
@@ -34,18 +31,17 @@
     margin-bottom: 24px;
     overflow: hidden;
 }
-
 .section-card-header {
     padding: 16px 24px;
     border-bottom: 1px solid #f0fdfa;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 10px;
     font-weight: 700;
     font-size: 0.95rem;
     color: #1e1b4b;
 }
-
 .section-card-body { padding: 24px; }
 
 .stat-mini {
@@ -55,22 +51,8 @@
     text-align: center;
     border: 1px solid #e5e7eb;
 }
-
-.stat-mini .num {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #0d9488;
-    line-height: 1;
-}
-
-.stat-mini .lbl {
-    font-size: 0.78rem;
-    color: #6b7280;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 4px;
-}
+.stat-mini .num { font-size: 2rem; font-weight: 800; color: #0d9488; line-height: 1; }
+.stat-mini .lbl { font-size: 0.78rem; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
 
 .data-box {
     background: #fafafa;
@@ -82,290 +64,445 @@
     align-items: center;
     margin-bottom: 8px;
 }
-
 .data-box:last-child { margin-bottom: 0; }
-
 .data-box .label { font-weight: 600; color: #374151; font-size: 0.85rem; }
 .data-box .value { font-weight: 700; color: #0d9488; font-size: 1rem; }
-
-.status-badge-sm {
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
 
 .btn-print-pdf {
     background: linear-gradient(135deg, #0d9488, #0f766e);
     color: white;
     border: none;
-    padding: 12px 28px;
-    border-radius: 12px;
+    padding: 10px 24px;
+    border-radius: 10px;
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
+    gap: 8px;
+}
+
+/* ── Tab Styles ── */
+.tab-nav-admin {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    background: #f1f5f9;
+    padding: 6px;
+    border-radius: 14px;
+}
+.tab-btn-admin {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: #64748b;
+    cursor: pointer;
+    transition: all .2s;
+}
+.tab-btn-admin.active { background: white; color: #0d9488; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+.tab-pane-admin { display: none; }
+.tab-pane-admin.active { display: block; }
+
+/* ── Filter Bar ── */
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
     gap: 10px;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 16px rgba(13,148,136,0.25);
+    align-items: flex-end;
+    background: #f8fafc;
+    padding: 14px 18px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
 }
-
-.btn-print-pdf:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(13,148,136,0.35);
+.filter-bar label { font-size: .78rem; font-weight: 600; color: #475569; display: block; margin-bottom: 3px; }
+.filter-bar input, .filter-bar select {
+    padding: 7px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: .88rem;
+    color: #1e293b;
 }
+.btn-apply {
+    background: linear-gradient(135deg, #0f766e, #0d9488);
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: .88rem;
+}
+.btn-export-xl {
+    background: linear-gradient(135deg, #166534, #15803d);
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: .88rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+}
+.btn-export-xl:hover { opacity: .9; color: white; }
 
-/* ===== PRINT STYLES ===== */
+/* ── Table ── */
+.tbl-admin th {
+    font-size: .78rem;
+    padding: 10px 14px;
+    background: #f0fdfa;
+    color: #0f766e;
+    border-bottom: 2px solid #ccfbf1;
+    white-space: nowrap;
+}
+.tbl-admin td { font-size: .85rem; padding: 10px 14px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
+.tbl-admin tbody tr:hover { background: #f8fffe; }
+
+/* ── Status badges ── */
+.sb-hadir { background:#dcfce7;color:#166534;padding:2px 9px;border-radius:20px;font-size:.75rem;font-weight:700; }
+.sb-izin  { background:#fef9c3;color:#854d0e;padding:2px 9px;border-radius:20px;font-size:.75rem;font-weight:700; }
+.sb-sakit { background:#dbeafe;color:#1e40af;padding:2px 9px;border-radius:20px;font-size:.75rem;font-weight:700; }
+.sb-alpha { background:#fee2e2;color:#991b1b;padding:2px 9px;border-radius:20px;font-size:.75rem;font-weight:700; }
+.sb-belum { background:#f1f5f9;color:#64748b;padding:2px 9px;border-radius:20px;font-size:.75rem;font-weight:700; }
+
+/* ── Progress bar ── */
+.persen-bar { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+.persen-fill { height: 100%; background: linear-gradient(90deg, #0d9488, #14b8a6); border-radius: 3px; }
+
+/* ── Print ── */
 @media print {
-    /* Hide sidebar, header, and non-print elements */
-    .sidebar, .main-wrapper .top-header, .no-print,
-    .app-container > .sidebar { display: none !important; }
-
+    .sidebar, .main-wrapper .top-header, .no-print { display: none !important; }
     .main-wrapper { margin-left: 0 !important; }
     .content-body { padding: 0 !important; }
-
-    body {
-        background: white !important;
-        font-family: 'Times New Roman', serif !important;
-        font-size: 11pt !important;
-        color: #000 !important;
-    }
-
-    /* Print header */
-    .print-only-header {
-        display: block !important;
-        text-align: center;
-        border-bottom: 3px double #000;
-        padding-bottom: 16px;
-        margin-bottom: 24px;
-    }
-
-    .print-only-header h2 {
-        font-size: 16pt;
-        font-weight: bold;
-        margin: 0 0 4px;
-    }
-
-    .print-only-header p {
-        font-size: 10pt;
-        color: #555;
-        margin: 2px 0;
-    }
-
+    body { background: white !important; font-size: 11pt !important; }
+    .print-only-header { display: block !important; text-align: center; border-bottom: 3px double #000; padding-bottom: 16px; margin-bottom: 24px; }
+    .print-only-header h2 { font-size: 14pt; font-weight: bold; }
     .report-header-banner { display: none !important; }
-
-    .section-card {
-        border: 1px solid #aaa !important;
-        border-radius: 0 !important;
-        box-shadow: none !important;
-        margin-bottom: 16px !important;
-        page-break-inside: avoid;
-    }
-
-    .section-card-header {
-        background: #e8e8e8 !important;
-        color: #000 !important;
-        padding: 8px 14px !important;
-        font-size: 10pt !important;
-    }
-
-    .section-card-body { padding: 12px 14px !important; }
-
-    .stat-mini {
-        border: 1px solid #ccc !important;
-        border-radius: 4px !important;
-        padding: 8px !important;
-        background: #f5f5f5 !important;
-    }
-
-    .stat-mini .num { font-size: 18pt !important; color: #000 !important; }
-
-    .data-box {
-        border: 1px solid #ccc !important;
-        background: none !important;
-        padding: 6px 10px !important;
-        border-radius: 0 !important;
-    }
-    .data-box .value { color: #000 !important; }
-
+    .section-card { border: 1px solid #aaa !important; box-shadow: none !important; border-radius: 0 !important; page-break-inside: avoid; }
     table { border-collapse: collapse !important; width: 100%; font-size: 9pt; }
     th { background: #333 !important; color: #fff !important; padding: 5px 8px !important; }
     td { padding: 4px 8px !important; border: 1px solid #ccc !important; }
-
-    .no-print { display: none !important; }
-
-    .print-footer {
-        display: block !important;
-        text-align: right;
-        font-size: 9pt;
-        color: #777;
-        border-top: 1px solid #ccc;
-        margin-top: 24px;
-        padding-top: 8px;
-    }
+    .print-footer { display: block !important; text-align: right; font-size: 9pt; border-top: 1px solid #ccc; margin-top: 20px; padding-top: 8px; }
 }
-
-/* Hidden on screen, shown on print */
 .print-only-header, .print-footer { display: none; }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Print-only header (invisible on screen) -->
+<!-- Print header (hidden on screen) -->
 <div class="print-only-header">
     <h2>LAPORAN REKAPITULASI MAGANG — DISKOMINFOSANTIK</h2>
     <p>Admin Pusat &nbsp;|&nbsp; Rekapitulasi Data Seluruh Peserta</p>
     <p>Dicetak: {{ today|date:"d F Y" }}</p>
 </div>
 
-<!-- Screen banner -->
+<!-- Screen Banner -->
 <div class="report-header-banner no-print">
     <div class="d-flex align-items-center gap-4 position-relative" style="z-index:1;">
         <div>
-            <div style="opacity:0.8; font-size:0.8rem; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">
-                Laporan Admin Pusat
-            </div>
-            <h2 style="font-size:1.6rem; font-weight:800; margin:0 0 4px;">
-                Rekapitulasi Data Magang
-            </h2>
-            <div style="opacity:0.85; font-size:0.9rem;">
-                Keseluruhan Peserta, Bidang, dan Mentor Diskominfosantik
-            </div>
+            <div style="opacity:.8;font-size:.8rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Laporan Admin Pusat</div>
+            <h2 style="font-size:1.6rem;font-weight:800;margin:0 0 4px;">Rekapitulasi Data Magang</h2>
+            <div style="opacity:.85;font-size:.9rem;">Keseluruhan Peserta, Bidang, dan Mentor Diskominfosantik</div>
         </div>
         <div class="ms-auto text-end d-none d-md-block">
-            <div style="opacity:0.7; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.5px;">Tanggal Cetak</div>
+            <div style="opacity:.7;font-size:.78rem;text-transform:uppercase;">Tanggal</div>
             <div style="font-weight:700;">{{ today|date:"d F Y" }}</div>
         </div>
     </div>
 </div>
 
-<!-- 1. Ringkasan Statistik Utama -->
-<div class="section-card">
-    <div class="section-card-header">
-        <i class="fas fa-chart-line" style="color:#0d9488;"></i> Ringkasan Statistik Global
-    </div>
-    <div class="section-card-body">
-        <div class="row g-3">
-            <div class="col-4">
-                <div class="stat-mini">
-                    <div class="num">{{ total_peserta }}</div>
-                    <div class="lbl">Total Peserta</div>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="stat-mini">
-                    <div class="num">{{ total_peserta_aktif }}</div>
-                    <div class="lbl">Peserta Aktif</div>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="stat-mini">
-                    <div class="num">{{ total_absensi_hari_ini }}</div>
-                    <div class="lbl">Absensi Hari Ini</div>
-                </div>
-            </div>
-        </div>
-    </div>
+<!-- Tab Navigation -->
+<div class="tab-nav-admin no-print">
+    <button class="tab-btn-admin {% if active_tab == 'ringkasan' %}active{% endif %}" onclick="switchTabAdmin('ringkasan',this)">
+        <i class="fas fa-chart-pie me-1"></i> Ringkasan
+    </button>
+    <button class="tab-btn-admin {% if active_tab == 'harian' %}active{% endif %}" onclick="switchTabAdmin('harian',this)">
+        <i class="fas fa-calendar-day me-1"></i> Laporan Harian
+    </button>
+    <button class="tab-btn-admin {% if active_tab == 'bulanan' %}active{% endif %}" onclick="switchTabAdmin('bulanan',this)">
+        <i class="fas fa-calendar-alt me-1"></i> Laporan Bulanan
+    </button>
 </div>
 
-<div class="row">
-    <!-- 2. Per Bidang -->
-    <div class="col-lg-6">
-        <div class="section-card h-100">
-            <div class="section-card-header">
-                <i class="fas fa-layer-group" style="color:#3b82f6;"></i> Distribusi Per Bidang
-            </div>
-            <div class="section-card-body">
-                {% if bidang_data %}
+<!-- ===== TAB RINGKASAN ===== -->
+<div id="tab-admin-ringkasan" class="tab-pane-admin {% if active_tab == 'ringkasan' %}active{% endif %}">
+    <div class="row g-3 mb-4">
+        <div class="col-4">
+            <div class="stat-mini"><div class="num">{{ total_peserta }}</div><div class="lbl">Total Peserta</div></div>
+        </div>
+        <div class="col-4">
+            <div class="stat-mini"><div class="num">{{ total_peserta_aktif }}</div><div class="lbl">Peserta Aktif</div></div>
+        </div>
+        <div class="col-4">
+            <div class="stat-mini"><div class="num">{{ total_absensi_hari_ini }}</div><div class="lbl">Absensi Hari Ini</div></div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="section-card h-100">
+                <div class="section-card-header"><i class="fas fa-layer-group me-2" style="color:#3b82f6;"></i>Distribusi Per Bidang</div>
+                <div class="section-card-body">
                     {% for item in bidang_data %}
                     <div class="data-box">
                         <div class="label">{{ item.bidang_penempatan }}</div>
                         <div class="value">{{ item.total }} Orang</div>
                     </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="text-muted text-center py-3">Belum ada data distribusi bidang.</p>
-                {% endif %}
+                    {% empty %}<p class="text-muted text-center py-2">Belum ada data.</p>{% endfor %}
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- 3. Per Mentor -->
-    <div class="col-lg-6 mt-4 mt-lg-0">
-        <div class="section-card h-100">
-            <div class="section-card-header">
-                <i class="fas fa-user-tie" style="color:#8b5cf6;"></i> Beban Bimbingan Mentor
-            </div>
-            <div class="section-card-body">
-                {% if mentor_data %}
+        <div class="col-lg-6 mt-4 mt-lg-0">
+            <div class="section-card h-100">
+                <div class="section-card-header"><i class="fas fa-user-tie me-2" style="color:#8b5cf6;"></i>Beban Bimbingan Mentor</div>
+                <div class="section-card-body">
                     {% for item in mentor_data %}
                     <div class="data-box">
                         <div class="label">{{ item.mentor__first_name }} {{ item.mentor__last_name }}</div>
                         <div class="value">{{ item.total }} Peserta</div>
                     </div>
+                    {% empty %}<p class="text-muted text-center py-2">Belum ada data.</p>{% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-card mt-4">
+        <div class="section-card-header"><i class="fas fa-calendar-check me-2" style="color:#f59e0b;"></i>Log Absensi Terakhir</div>
+        <div class="section-card-body p-0">
+            <div class="table-responsive">
+                <table class="table tbl-admin mb-0">
+                    <thead><tr><th>No</th><th>Peserta</th><th>Tanggal</th><th>Check-in / Out</th><th>Status</th></tr></thead>
+                    <tbody>
+                        {% for absen in absensi_terakhir %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><strong>{{ absen.peserta.user.get_full_name }}</strong></td>
+                            <td>{{ absen.tanggal|date:"d M Y" }}</td>
+                            <td>{{ absen.check_in|time:"H:i"|default:'-' }} / {{ absen.check_out|time:"H:i"|default:'-' }}</td>
+                            <td>
+                                {% if absen.status == 'hadir' %}<span class="sb-hadir">Hadir</span>
+                                {% elif absen.status == 'izin' %}<span class="sb-izin">Izin</span>
+                                {% elif absen.status == 'sakit' %}<span class="sb-sakit">Sakit</span>
+                                {% else %}<span class="sb-alpha">Alpha</span>{% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}<tr><td colspan="5" class="text-center text-muted py-3">Belum ada data absensi.</td></tr>{% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-3 mt-4 no-print">
+        <a href="{% url 'laporan:export_excel_admin' %}" class="btn-export-xl"><i class="fas fa-file-excel"></i> Export Rekap Excel</a>
+        <button onclick="window.print()" class="btn-print-pdf"><i class="fas fa-file-pdf"></i> Cetak PDF</button>
+    </div>
+</div>
+
+<!-- ===== TAB LAPORAN HARIAN ===== -->
+<div id="tab-admin-harian" class="tab-pane-admin {% if active_tab == 'harian' %}active{% endif %}">
+    <form method="GET" action="?">
+        <input type="hidden" name="tab" value="harian">
+        <div class="filter-bar">
+            <div>
+                <label><i class="fas fa-user me-1"></i>Pilih Peserta</label>
+                <select name="peserta_id" style="min-width: 180px;">
+                    <option value="">-- Semua Peserta --</option>
+                    {% for p in all_peserta_filter %}
+                    <option value="{{ p.id }}" {% if p.id == selected_peserta_id %}selected{% endif %}>{{ p.user.get_full_name }}</option>
                     {% endfor %}
-                {% else %}
-                    <p class="text-muted text-center py-3">Belum ada data distribusi mentor.</p>
-                {% endif %}
+                </select>
+            </div>
+            <div>
+                <label><i class="fas fa-calendar me-1"></i>Pilih Tanggal</label>
+                <input type="date" name="tanggal" value="{{ selected_date_str }}" max="{{ today|date:'Y-m-d' }}">
+            </div>
+            <button type="submit" class="btn-apply"><i class="fas fa-search me-1"></i>Tampilkan</button>
+            <a href="{% url 'laporan:export_excel_harian_admin' %}?tanggal={{ selected_date_str }}{% if selected_peserta_id %}&peserta_id={{ selected_peserta_id }}{% endif %}" class="btn-export-xl ms-auto">
+                <i class="fas fa-file-excel"></i> Export Excel Harian
+            </a>
+        </div>
+    </form>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-2">
+            <div class="stat-mini"><div class="num" style="color:#16a34a;">{{ count_hadir_hr }}</div><div class="lbl">Hadir</div></div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="stat-mini"><div class="num" style="color:#ca8a04;">{{ count_izin_hr }}</div><div class="lbl">Izin</div></div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="stat-mini"><div class="num" style="color:#2563eb;">{{ count_sakit_hr }}</div><div class="lbl">Sakit</div></div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="stat-mini"><div class="num" style="color:#dc2626;">{{ count_alpha_hr }}</div><div class="lbl">Alpha</div></div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="stat-mini"><div class="num" style="color:#94a3b8;">{{ count_belum_hr }}</div><div class="lbl">Belum Absen</div></div>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-card-header"><i class="fas fa-clipboard-check me-2"></i>Presensi Tanggal {{ selected_date|date:"d F Y" }}</div>
+        <div class="section-card-body p-0">
+            <div class="table-responsive">
+                <table class="table tbl-admin mb-0">
+                    <thead><tr><th>No</th><th>Nama</th><th>NIM</th><th>Bidang</th><th>Check-in</th><th>Check-out</th><th>Status</th></tr></thead>
+                    <tbody>
+                        {% for item in rekap_harian_peserta %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><strong>{{ item.peserta.user.get_full_name }}</strong></td>
+                            <td>{{ item.peserta.nim }}</td>
+                            <td>{{ item.peserta.bidang_penempatan }}</td>
+                            <td>{{ item.absen.check_in|time:"H:i"|default:"-" }}</td>
+                            <td>{{ item.absen.check_out|time:"H:i"|default:"-" }}</td>
+                            <td>
+                                {% if item.status == 'hadir' %}<span class="sb-hadir">Hadir</span>
+                                {% elif item.status == 'izin' %}<span class="sb-izin">Izin</span>
+                                {% elif item.status == 'sakit' %}<span class="sb-sakit">Sakit</span>
+                                {% elif item.status == 'alpha' %}<span class="sb-alpha">Alpha</span>
+                                {% else %}<span class="sb-belum">Belum</span>{% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}<tr><td colspan="7" class="text-center py-3 text-muted">Tidak ada data untuk tanggal ini.</td></tr>{% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-card-header"><i class="fas fa-book-open me-2"></i>Logbook Kegiatan {{ selected_date|date:"d F Y" }}</div>
+        <div class="section-card-body p-0">
+            <div class="table-responsive">
+                <table class="table tbl-admin mb-0">
+                    <thead><tr><th>No</th><th>Nama</th><th>NIM</th><th>Kegiatan</th><th>Status</th></tr></thead>
+                    <tbody>
+                        {% for log in logbooks_harian_all %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><strong>{{ log.peserta.user.get_full_name }}</strong></td>
+                            <td>{{ log.peserta.nim }}</td>
+                            <td>{{ log.kegiatan|truncatechars:80 }}</td>
+                            <td><span style="background:#f0fdfa;color:#0f766e;padding:2px 9px;border-radius:20px;font-size:.75rem;font-weight:700;">{{ log.get_status_display }}</span></td>
+                        </tr>
+                        {% empty %}<tr><td colspan="5" class="text-center py-3 text-muted">Tidak ada logbook pada tanggal ini.</td></tr>{% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 4. Absensi Terakhir -->
-<div class="section-card mt-4">
-    <div class="section-card-header">
-        <i class="fas fa-calendar-check" style="color:#f59e0b;"></i> Log Absensi Terakhir (Sampel 30 Data)
-    </div>
-    <div class="section-card-body" style="padding:0;">
-        {% if absensi_terakhir %}
-        <div class="table-responsive">
-            <table class="table table-hover mb-0" style="font-size:0.875rem;">
-                <thead style="background:#f9fafb;">
-                    <tr>
-                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">No</th>
-                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">Peserta</th>
-                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">Tanggal</th>
-                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">Check-in / Out</th>
-                        <th style="padding:12px 20px; color:#6b7280; font-size:0.75rem; text-transform:uppercase; font-weight:600;">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for absen in absensi_terakhir %}
-                    <tr>
-                        <td style="padding:10px 20px;">{{ forloop.counter }}</td>
-                        <td style="padding:10px 20px; font-weight:600;">{{ absen.peserta.user.get_full_name }}</td>
-                        <td style="padding:10px 20px;">{{ absen.tanggal|date:"d M Y" }}</td>
-                        <td style="padding:10px 20px;">{{ absen.check_in|time:"H:i"|default:'-' }} / {{ absen.check_out|time:"H:i"|default:'-' }}</td>
-                        <td style="padding:10px 20px;">
-                            <span class="status-badge-sm {% if absen.status == 'hadir' %}bg-success text-white{% elif absen.status == 'sakit' %}bg-warning text-dark{% elif absen.status == 'izin' %}bg-info text-white{% else %}bg-danger text-white{% endif %}">
-                                {{ absen.get_status_display }}
-                            </span>
-                        </td>
-                    </tr>
+<!-- ===== TAB LAPORAN BULANAN ===== -->
+<div id="tab-admin-bulanan" class="tab-pane-admin {% if active_tab == 'bulanan' %}active{% endif %}">
+    <form method="GET" action="?">
+        <input type="hidden" name="tab" value="bulanan">
+        <div class="filter-bar">
+            <div>
+                <label><i class="fas fa-user me-1"></i>Pilih Peserta</label>
+                <select name="peserta_id" style="min-width: 180px;">
+                    <option value="">-- Semua Peserta --</option>
+                    {% for p in all_peserta_filter %}
+                    <option value="{{ p.id }}" {% if p.id == selected_peserta_id %}selected{% endif %}>{{ p.user.get_full_name }}</option>
                     {% endfor %}
-                </tbody>
-            </table>
+                </select>
+            </div>
+            <div>
+                <label><i class="fas fa-calendar-alt me-1"></i>Bulan</label>
+                <select name="bulan">
+                    {% for num, nama in month_names %}
+                    <option value="{{ num }}" {% if num == selected_month %}selected{% endif %}>{{ nama }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>Tahun</label>
+                <select name="tahun">
+                    {% for yr in available_years %}
+                    <option value="{{ yr }}" {% if yr == selected_year %}selected{% endif %}>{{ yr }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn-apply"><i class="fas fa-search me-1"></i>Tampilkan</button>
+            <a href="{% url 'laporan:export_excel_bulanan_admin' %}?bulan={{ selected_month }}&tahun={{ selected_year }}{% if selected_peserta_id %}&peserta_id={{ selected_peserta_id }}{% endif %}" class="btn-export-xl ms-auto">
+                <i class="fas fa-file-excel"></i> Export Excel Bulanan
+            </a>
         </div>
-        {% else %}
-        <div class="text-center py-4 text-muted"><p>Belum ada riwayat absensi.</p></div>
-        {% endif %}
-    </div>
-</div>
+    </form>
 
-<!-- Tombol Aksi -->
-<div class="d-flex gap-3 pb-4 no-print mt-4">
-    <a href="{% url 'users:dashboard_admin' %}" class="btn btn-light fw-600 border" style="border-radius:10px; padding:10px 20px;">
-        <i class="fas fa-arrow-left me-2"></i>Kembali
-    </a>
-    <button onclick="window.print()" class="btn-print-pdf">
-        <i class="fas fa-file-pdf"></i> Cetak PDF
-    </button>
+    <div class="section-card">
+        <div class="section-card-header"><i class="fas fa-table me-2"></i>Rekapitulasi Bulan {{ selected_month_name }} {{ selected_year }}</div>
+        <div class="section-card-body p-0">
+            <div class="table-responsive">
+                <table class="table tbl-admin mb-0">
+                    <thead><tr>
+                        <th>No</th><th>Nama Peserta</th><th>NIM</th><th>Bidang</th>
+                        <th class="text-center" style="color:#16a34a;">Hadir</th>
+                        <th class="text-center" style="color:#ca8a04;">Izin</th>
+                        <th class="text-center" style="color:#2563eb;">Sakit</th>
+                        <th class="text-center" style="color:#dc2626;">Alpha</th>
+                        <th>% Kehadiran</th>
+                        <th class="text-center">Logbook</th>
+                    </tr></thead>
+                    <tbody>
+                        {% for item in rekap_bulanan_peserta %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><strong>{{ item.peserta.user.get_full_name }}</strong></td>
+                            <td>{{ item.peserta.nim }}</td>
+                            <td>{{ item.peserta.bidang_penempatan }}</td>
+                            <td class="text-center"><strong style="color:#16a34a;">{{ item.hadir }}</strong></td>
+                            <td class="text-center"><strong style="color:#ca8a04;">{{ item.izin }}</strong></td>
+                            <td class="text-center"><strong style="color:#2563eb;">{{ item.sakit }}</strong></td>
+                            <td class="text-center"><strong style="color:#dc2626;">{{ item.alpha }}</strong></td>
+                            <td style="min-width:110px;">
+                                <div style="font-size:.8rem;font-weight:700;">{{ item.persentase_hadir }}%</div>
+                                <div class="persen-bar"><div class="persen-fill" style="width:{{ item.persentase_hadir }}%;"></div></div>
+                            </td>
+                            <td class="text-center"><strong>{{ item.total_logbook }}</strong></td>
+                        </tr>
+                        {% empty %}<tr><td colspan="10" class="text-center py-3 text-muted">Tidak ada data pada bulan ini.</td></tr>{% endfor %}
+                    </tbody>
+                    {% if rekap_bulanan_peserta %}
+                    <tfoot><tr style="background:#f0fdfa;font-weight:700;font-size:.85rem;">
+                        <td colspan="4">Total</td>
+                        <td class="text-center">{{ total_hadir_all_bln }}</td>
+                        <td class="text-center">{{ total_izin_all_bln }}</td>
+                        <td class="text-center">{{ total_sakit_all_bln }}</td>
+                        <td class="text-center">{{ total_alpha_all_bln }}</td>
+                        <td>—</td>
+                        <td class="text-center">{{ total_logbook_all_bln }}</td>
+                    </tr></tfoot>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Print footer -->
 <div class="print-footer">
     Dicetak dari Sistem Manajemen Magang — Diskominfosantik &nbsp;|&nbsp; {{ today|date:"d F Y" }}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function switchTabAdmin(name, btn) {
+    document.querySelectorAll('.tab-pane-admin').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn-admin').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-admin-' + name).classList.add('active');
+    btn.classList.add('active');
+}
+</script>
 {% endblock %}

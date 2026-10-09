@@ -94,6 +94,11 @@
                                         <i class="fas fa-star"></i> Penilaian
                                     </a>
                                 </li>
+                                <li>
+                                    <a href="{% url 'laporan:laporan_mentor' %}" class="nav-link-item {% if '/laporan/mentor' in request.path %}active{% endif %}">
+                                        <i class="fas fa-file-chart-bar"></i> Laporan Bimbingan
+                                    </a>
+                                </li>
                             {% elif group.name == 'Peserta' %}
                                 <li>
                                     <a href="/dashboard/peserta/" class="nav-link-item {% if request.path == '/dashboard/peserta/' %}active{% endif %}">
